@@ -10,6 +10,7 @@ namespace Unimarket.API.Helper
         {
             #region User
             CreateMap<ApplicationUser, UserSignUp>().ReverseMap();
+            CreateMap<ApplicationUser, UserDTO>().ReverseMap();
             #endregion
         }
     }

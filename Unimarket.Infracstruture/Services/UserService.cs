@@ -1,34 +1,50 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Unimarket.Core.Constants;
 using Unimarket.Core.Entities;
 using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Data;
+using Unimarket.Infracstruture.Repositories;
 
 namespace Unimarket.Infracstruture.Services
 {
     public interface IUserService
     {
-        public Task<IdentityResult> SignUpAsync(UserSignUp user);
-        public Task<UserSignInVM> SignInAsync(UserSignUp model);
+        Task<IdentityResult> SignUpAsync(UserDTO model);
+        Task<ApplicationUser> SignInAsync(UserSignIn model);
+        Task<IList<String>> GetRolesAsync(ApplicationUser user);
+
+        Task<ApplicationUser> FindAsync(Guid id);
+        IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where);
+        IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where, params Expression<Func<ApplicationUser, object>>[] includes);
+        IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where, Func<IQueryable<ApplicationUser>, IIncludableQueryable<ApplicationUser, object>> include = null);
+        Task<Message> AddAsync(UserDTO user);
+        void Update(ApplicationUser user);
+        Task<bool> CheckExist(Expression<Func<ApplicationUser, bool>> where);
+        Task<bool> SaveChangeAsync();
     }
     public class UserService : IUserService
     {
+        private readonly IUserRepository _userRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public UserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration,
+        public UserService(IUserRepository userRepository, UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager, IConfiguration configuration,
             RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork, IMapper mapper)
         {
+            _userRepository = userRepository;
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
@@ -36,19 +52,19 @@ namespace Unimarket.Infracstruture.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<UserSignInVM> SignInAsync(UserSignUp model)
+
+        public async Task<ApplicationUser> SignInAsync(UserSignIn model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                var userVM = _mapper.Map<UserSignInVM>(user);
-                return userVM;
+                var user = await _userManager.FindByNameAsync(model.UserName);
+                return user;
             }
             return null;
         }
 
-        public async Task<IdentityResult> SignUpAsync(UserSignUp model)
+        public async Task<IdentityResult> SignUpAsync(UserDTO model)
         {
             var isDupplicate = await _userManager.FindByEmailAsync(model.Email);
             if (isDupplicate != null)
@@ -82,6 +98,83 @@ namespace Unimarket.Infracstruture.Services
             }
 
             return result;
+        }
+
+        public async Task<Message> AddAsync(UserDTO userVM)
+        {
+            var isDupplicate = await _userManager.FindByEmailAsync(userVM.Email);
+            if (isDupplicate != null)
+            {
+                return null;
+            }
+            var user = _mapper.Map<ApplicationUser>(userVM);
+            var result = await _userManager.CreateAsync(user, userVM.Password);
+            if (result.Succeeded)
+            {
+                if (!await _roleManager.RoleExistsAsync(AppRole.Customer))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(AppRole.Customer));
+                }
+
+                if (!await _roleManager.RoleExistsAsync(AppRole.Admin))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(AppRole.Admin));
+                }
+                if (userVM.IsAdmin)
+                {
+                    await _userManager.AddToRoleAsync(user, AppRole.Admin);
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(user, AppRole.Customer);
+                }
+            }
+
+            return new Message
+            {
+                StatusCode = 400,
+                Content = "Create new user successfully",
+            };
+        }
+
+        public async Task<bool> CheckExist(Expression<Func<ApplicationUser, bool>> where)
+        {
+            return await _userRepository.CheckExist(where);
+        }
+
+        public async Task<ApplicationUser> FindAsync(Guid id)
+        {
+            return await _userManager.FindByIdAsync(id.ToString());
+        }
+
+        public IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where)
+        {
+            return _userRepository.Get(where);
+        }
+
+        public IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where, params Expression<Func<ApplicationUser, object>>[] includes)
+        {
+            return _userRepository.Get(where, includes);
+        }
+
+        public IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where, Func<IQueryable<ApplicationUser>, IIncludableQueryable<ApplicationUser, object>> include = null)
+        {
+            return _userRepository.Get(where, include);
+        }
+
+        public async Task<bool> SaveChangeAsync()
+        {
+            return await _unitOfWork.SaveChangeAsync();
+        }
+
+        public void Update(ApplicationUser user)
+        {
+             _userRepository.Update(user);
+        }
+
+        public async Task<IList<string>> GetRolesAsync(ApplicationUser user)
+        {
+            return await _userManager.GetRolesAsync(user);
         }
     }
 }
