@@ -9,8 +9,8 @@ namespace Unimarket.API.Helper
         public ApplicationMapper()
         {
             #region User
-            CreateMap<ApplicationUser, UserSignUp>().ReverseMap();
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserRolesVM>().ReverseMap();
             #endregion
         }
     }

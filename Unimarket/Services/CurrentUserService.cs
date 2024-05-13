@@ -9,7 +9,7 @@ namespace Unimarket.API.Services
     {
         Guid GetUserId();
         String getUserEmail();
-        Task<ApplicationUser> User();
+        Task<ApplicationUser> GetUser();
     }
 
     public class CurrentUserService : ICurrentUserService
@@ -37,7 +37,7 @@ namespace Unimarket.API.Services
             return _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
         }
 
-        public async Task<ApplicationUser> User()
+        public async Task<ApplicationUser> GetUser()
         {
             var userId = GetUserId();
             return await _userManager.FindByIdAsync(userId.ToString());

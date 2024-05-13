@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Unimarket.Core.Constants;
@@ -23,6 +24,7 @@ namespace Unimarket.Infracstruture.Services
         Task<IList<String>> GetRolesAsync(ApplicationUser user);
 
         Task<ApplicationUser> FindAsync(Guid id);
+        Task<IQueryable<UserRolesVM>> GetAll();
         IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where);
         IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where, params Expression<Func<ApplicationUser, object>>[] includes);
         IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where, Func<IQueryable<ApplicationUser>, IIncludableQueryable<ApplicationUser, object>> include = null);
@@ -175,6 +177,26 @@ namespace Unimarket.Infracstruture.Services
         public async Task<IList<string>> GetRolesAsync(ApplicationUser user)
         {
             return await _userManager.GetRolesAsync(user);
+        }
+
+        public async Task<IQueryable<UserRolesVM>> GetAll()
+        {
+            var listUserRolesVM = new List<UserRolesVM>();
+            var listUser = _userRepository.GetAll().ToList();
+            foreach (var user in listUser.ToList())
+            {
+                var userRoles = (await GetRolesAsync(user));
+                if (userRoles.Contains(AppRole.Admin))
+                {
+                    listUser.Remove(user);
+                } else
+                {
+                    var userRolesVM = _mapper.Map<UserRolesVM>(user);
+                    userRolesVM.RolesName = userRoles.ToList();
+                    listUserRolesVM.Add(userRolesVM);
+                }
+            }
+            return listUserRolesVM.AsQueryable();
         }
     }
 }

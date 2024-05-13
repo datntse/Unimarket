@@ -31,23 +31,18 @@ namespace Unimarket.Core.Models
 
     }
 
-    public class UserRolesVM : UserDTO
+    public class UserRolesVM
     {
-        public String UserName { get; set; }
-        public String Id { get; set; }
-        public String Email { get; set; }
-        public Boolean IsActive { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
         public List<string> RolesName { get; set; }
-    }
-
-    public class UserRoles : ApplicationUser
-    {
-        public List<string> RolesName { get; set; }
-    }
-
-    public class UserSignUp : UserDTO
-    {
-        public String Password { get; set; }
+        public String? DOB { get; set; }
+        public String? PhoneNumber { get; set; }
+        public String? CCCDNumber { get; set; }
+        public bool Gender { get; set; }
+        public int Status { get; set; } = 1;
     }
 
     public class UserSignIn
@@ -62,6 +57,6 @@ namespace Unimarket.Core.Models
         public string LastName { get; set; }
         public string Email { get; set; }
     }
-    
+
 
 }
