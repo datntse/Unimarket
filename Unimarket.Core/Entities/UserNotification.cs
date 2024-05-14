@@ -12,14 +12,15 @@ namespace Unimarket.Core.Entities
     {
         [Key]
         public Guid Id { get; set; }
-        public Guid UserIdFor { get; set; }
-        public Guid ItemId { get; set; }
-        public Guid PostId { get; set; }
-        public Guid NotificationId { get; set; }    
-        public virtual Post Post { get; set; }
-        public virtual Item Item { get; set; }
+        public string? UserIdFor { get; set; }
+        public Guid? ItemId { get; set; }
+        public Guid? PostId { get; set; }
+        public Guid? NotificationId { get; set; }    
+        public virtual Post? Post { get; set; }
+        public virtual Item? Item { get; set; }
         [ForeignKey("NotificationId")]
         public virtual Notification Notification { get; set; }
+        [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; set; }
     }
 }

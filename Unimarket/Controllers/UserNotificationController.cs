@@ -15,7 +15,7 @@ namespace Unimarket.API.Controllers
             _userNotificationService = userNotificationService;
         }
         [HttpPost]
-        public async Task<IActionResult> CreateUserNoti(UserNotiDTO model)
+        public async Task<IActionResult> CreateUserNoti(UserNotiCM model)
         {
             var result = await _userNotificationService.CreateUserNoti(model);
 

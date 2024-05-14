@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Unimarket.Infracstruture.Services
 {
     public interface IUserNotificationService
     {
-        Task<IdentityResult> CreateUserNoti(UserNotiDTO model);
+        Task<IdentityResult> CreateUserNoti(UserNotiCM model);
         Task<UserNotification> FindAsync(Guid id);
         IQueryable<UserNotification> GetAll();
         IQueryable<UserNotification> Get(Expression<Func<UserNotification, bool>> where);
@@ -41,9 +42,9 @@ namespace Unimarket.Infracstruture.Services
             _userManager = userManager;
         }
 
-        public Task AddAsync(UserNotification noti)
+        public async Task AddAsync(UserNotification noti)
         {
-            throw new NotImplementedException();
+            await _userNotiRepository.AddAsync(noti);
         }
 
         public Task AddRangce(IEnumerable<UserNotification> userNotifications)
@@ -56,11 +57,11 @@ namespace Unimarket.Infracstruture.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IdentityResult> CreateUserNoti(UserNotiDTO model)
+        public async Task<IdentityResult> CreateUserNoti(UserNotiCM model)
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(model.userId);
+                var user = await _userManager.FindByIdAsync(model.UserId);
 
                 if (user == null)
                 {
@@ -70,15 +71,47 @@ namespace Unimarket.Infracstruture.Services
                         Description = "User not found"
                     });
                 }
-
-                var newUserNotification = new UserNotification
+                var newUserNotification = new UserNotification();
+                if (model.ItemId.IsNullOrEmpty() && model.PostId.IsNullOrEmpty())
                 {
-                    ItemId = model.ItemId,
-                    PostId = model.PostId,
-                    NotificationId = model.NotificationId,
-                    UserIdFor = model.UserIdFor,
-                    User = user,
-                };
+                     newUserNotification = new UserNotification
+                    {
+                        Id = Guid.NewGuid(),
+                        NotificationId = model.NotificationId,
+                        UserIdFor = model.UserIdFor,
+                        User = user,
+                    };
+                } else if (model.UserId != null && model.PostId.IsNullOrEmpty())
+                {
+                    newUserNotification = new UserNotification
+                    {
+                        Id = Guid.NewGuid(),
+                        NotificationId = model.NotificationId,
+                        ItemId = Guid.Parse(model.ItemId),
+                        UserIdFor = model.UserIdFor,
+                        User = user,
+                    };
+                } else if(model.UserId.IsNullOrEmpty() && model.PostId != null)
+                {
+                    newUserNotification = new UserNotification
+                    {
+                        Id = Guid.NewGuid(),
+                        NotificationId = model.NotificationId,
+                        PostId = Guid.Parse(model.PostId),
+                        UserIdFor = model.UserIdFor,
+                        User = user,
+                    };
+                }
+                else
+                {
+                    return IdentityResult.Failed(new IdentityError
+                    {
+                        Code = "SaveFailed",
+                        Description = "Failed to save changes to the database."
+                    });
+                }
+                
+
 
                 await _userNotiRepository.AddAsync(newUserNotification);
                 var saveResult = await _unitOfWork.SaveChangeAsync();  // Assuming SaveChangeAsync is an asynchronous method
@@ -105,6 +138,7 @@ namespace Unimarket.Infracstruture.Services
                     Code = "Exception",
                     Description = ex.Message
                 });
+
             }
         }
 
@@ -139,9 +173,9 @@ namespace Unimarket.Infracstruture.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> SaveChangeAsync()
+        public async Task<bool> SaveChangeAsync()
         {
-            throw new NotImplementedException();
+            return await _unitOfWork.SaveChangeAsync();
         }
 
         public void Update(UserNotification noti)
