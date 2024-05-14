@@ -4,7 +4,7 @@ using Unimarket.Infracstruture.Services;
 namespace Unimarket.API.Controllers
 {
     [ApiController]
-    [Route("Category")]
+    [Route("api/category")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;

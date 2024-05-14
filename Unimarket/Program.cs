@@ -50,7 +50,7 @@ builder.Services.AddAuthentication(options => {
 
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "ASP.System API", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Unimarket.System API", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -79,6 +79,7 @@ builder.Services.AddSwaggerGen(option =>
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 
@@ -95,6 +96,8 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
