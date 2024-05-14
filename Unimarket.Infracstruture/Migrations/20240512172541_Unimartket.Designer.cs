@@ -12,8 +12,8 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240510084537_Unimarket")]
-    partial class Unimarket
+    [Migration("20240512172541_Unimartket")]
+    partial class Unimartket
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -532,6 +532,9 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("notiStatus")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

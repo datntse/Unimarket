@@ -27,6 +27,12 @@ namespace Unimarket.Infracstruture
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
 
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<INotificationService, NotificationService>();
+
+            services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+            services.AddScoped<IUserNotificationService, UserNotificationService>();
+
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
             #endregion

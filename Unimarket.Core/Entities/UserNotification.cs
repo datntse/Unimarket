@@ -20,5 +20,6 @@ namespace Unimarket.Core.Entities
         public virtual Item Item { get; set; }
         [ForeignKey("NotificationId")]
         public virtual Notification Notification { get; set; }
+        public virtual ApplicationUser User { get; set; }
     }
 }

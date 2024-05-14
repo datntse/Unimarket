@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unimarket.Core.Enums;
 
 namespace Unimarket.Core.Entities
 {
@@ -15,6 +16,8 @@ namespace Unimarket.Core.Entities
         public String Description { get; set; }
         public DateTime CreateAt { get; set; }
         public bool IsRead { get; set; }
+        public NotiStatus notiStatus { get; set; }
+
         public virtual ICollection<UserNotification> UserNotifications { get; set; }
     }
 }
