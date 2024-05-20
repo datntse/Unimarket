@@ -12,8 +12,8 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240514085304_Unimarket1")]
-    partial class Unimarket1
+    [Migration("20240520173927_Unimartket")]
+    partial class Unimartket
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -262,6 +262,9 @@ namespace Unimarket.Infracstruture.Migrations
 
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");

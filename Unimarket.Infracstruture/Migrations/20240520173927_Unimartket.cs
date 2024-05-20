@@ -157,6 +157,7 @@ namespace Unimarket.Infracstruture.Migrations
                     ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -596,11 +597,11 @@ namespace Unimarket.Infracstruture.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserIdFor = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserIdFor = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -609,8 +610,7 @@ namespace Unimarket.Infracstruture.Migrations
                         name: "FK_UserNotification_Item_ItemId",
                         column: x => x.ItemId,
                         principalTable: "Item",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserNotification_Notification_NotificationId",
                         column: x => x.NotificationId,
@@ -621,13 +621,13 @@ namespace Unimarket.Infracstruture.Migrations
                         name: "FK_UserNotification_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserNotification_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserNotification_Users_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -751,11 +751,6 @@ namespace Unimarket.Infracstruture.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserNotification_ApplicationUserId",
-                table: "UserNotification",
-                column: "ApplicationUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserNotification_ItemId",
                 table: "UserNotification",
                 column: "ItemId");
@@ -769,6 +764,11 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "IX_UserNotification_PostId",
                 table: "UserNotification",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserNotification_UserId",
+                table: "UserNotification",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserPackage_UserId",

@@ -33,6 +33,7 @@ namespace Unimarket.Infracstruture.Services
         private IUnitOfWork _unitOfWork;
         private INotificationRepository _notificationRepository;
 
+
         public NotificationService(IUnitOfWork unitOfWork, INotificationRepository notificationRepository)
         {
             _unitOfWork = unitOfWork;
