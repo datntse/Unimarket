@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
@@ -33,12 +34,14 @@ namespace Unimarket.Infracstruture.Services
     {
         private IUnitOfWork _unitOfWork;
         private ICartRepository _cartRepository;
+        private IItemRepository _itemRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public CartService(IUnitOfWork unitOfWork, ICartRepository cartRepository, UserManager<ApplicationUser> userManager)
+        public CartService(IUnitOfWork unitOfWork, ICartRepository cartRepository,IItemRepository itemRepository, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _cartRepository = cartRepository;
+            _itemRepository = itemRepository;
             _userManager = userManager;
         }
 
@@ -55,6 +58,8 @@ namespace Unimarket.Infracstruture.Services
         public async Task<IdentityResult> AddToCart(AddItemDTO AddItem)
         {
             var user = await _userManager.FindByIdAsync(AddItem.UserId);
+
+            var items = await _itemRepository.FindAsync(AddItem.ItemId);
             if (user == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User does not exist." });
@@ -73,8 +78,8 @@ namespace Unimarket.Infracstruture.Services
                 var newCartItem = new CartItem
                 {
                     Id = Guid.NewGuid(),
-                    ItemId = AddItem.ItemId,
                     User = user,
+                    Items = items,
                     Quantity = 1,
                     UpdateAt = DateTime.UtcNow,
                     CreateAt = DateTime.UtcNow,
@@ -99,6 +104,11 @@ namespace Unimarket.Infracstruture.Services
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User not found." });
             }
+
+
+            var cartItems = _cartRepository
+            .Get(c => c.User.Id == updateItem.UserId)
+            .Include(c=>c.Items).ToList();
 
             // Check if the item exists in the user's cart
             var existingCartItem = _cartRepository.Get(c => c.User.Id == updateItem.UserId && c.ItemId == updateItem.ItemId).FirstOrDefault();

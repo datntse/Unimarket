@@ -271,6 +271,8 @@ namespace Unimarket.Infracstruture.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ItemId");
+
                     b.HasIndex("UserId")
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
@@ -321,9 +323,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CartItemId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
@@ -361,8 +360,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CartItemId");
 
                     b.HasIndex("ItemCategoryId");
 
@@ -928,9 +925,17 @@ namespace Unimarket.Infracstruture.Migrations
 
             modelBuilder.Entity("Unimarket.Core.Entities.CartItem", b =>
                 {
+                    b.HasOne("Unimarket.Core.Entities.Item", "Items")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Unimarket.Core.Entities.ApplicationUser", "User")
                         .WithOne("CartItem")
                         .HasForeignKey("Unimarket.Core.Entities.CartItem", "UserId");
+
+                    b.Navigation("Items");
 
                     b.Navigation("User");
                 });
@@ -948,10 +953,6 @@ namespace Unimarket.Infracstruture.Migrations
 
             modelBuilder.Entity("Unimarket.Core.Entities.Item", b =>
                 {
-                    b.HasOne("Unimarket.Core.Entities.CartItem", null)
-                        .WithMany("Items")
-                        .HasForeignKey("CartItemId");
-
                     b.HasOne("Unimarket.Core.Entities.ItemCategory", null)
                         .WithMany("Items")
                         .HasForeignKey("ItemCategoryId");
@@ -1150,11 +1151,6 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Navigation("UserNotifications");
 
                     b.Navigation("UserPackages");
-                });
-
-            modelBuilder.Entity("Unimarket.Core.Entities.CartItem", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Unimarket.Core.Entities.Item", b =>

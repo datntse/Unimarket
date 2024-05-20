@@ -30,6 +30,12 @@ namespace Unimarket.Infracstruture
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartService, CartService>();
 
+            services.AddScoped<IItemRepository, ItemRepository>();
+            services.AddScoped<IItemService, ItemService>();
+
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderService, OrderService>();
+
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<INotificationService, NotificationService>();
 
