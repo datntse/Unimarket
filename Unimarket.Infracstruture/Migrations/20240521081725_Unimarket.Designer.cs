@@ -12,7 +12,7 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240520204751_Unimarket")]
+    [Migration("20240521081725_Unimarket")]
     partial class Unimarket
     {
         /// <inheritdoc />
@@ -276,9 +276,7 @@ namespace Unimarket.Infracstruture.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                    b.HasIndex("UserId");
 
                     b.ToTable("CartItem");
                 });
@@ -547,9 +545,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
@@ -563,9 +558,12 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Property<float>("TotalPrice")
                         .HasColumnType("real");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Order");
                 });
@@ -935,8 +933,8 @@ namespace Unimarket.Infracstruture.Migrations
                         .IsRequired();
 
                     b.HasOne("Unimarket.Core.Entities.ApplicationUser", "User")
-                        .WithOne("CartItem")
-                        .HasForeignKey("Unimarket.Core.Entities.CartItem", "UserId");
+                        .WithMany("CartItem")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Items");
 
@@ -1015,9 +1013,11 @@ namespace Unimarket.Infracstruture.Migrations
 
             modelBuilder.Entity("Unimarket.Core.Entities.Order", b =>
                 {
-                    b.HasOne("Unimarket.Core.Entities.ApplicationUser", null)
+                    b.HasOne("Unimarket.Core.Entities.ApplicationUser", "User")
                         .WithMany("Orders")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Unimarket.Core.Entities.OrderDetail", b =>

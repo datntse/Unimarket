@@ -50,6 +50,7 @@ namespace Unimarket.Infracstruture.Services
 
         public async Task<IdentityResult> CheckOut(CheckOutDTO checkOutDTO)
         {
+            var user = await _userManager.FindByIdAsync(checkOutDTO.UserId);
             var cartItems = await _cartRepository.Get(c => c.User.Id == checkOutDTO.UserId).Include(c=>c.Items).ToListAsync();
 
             if (cartItems == null || !cartItems.Any())
@@ -64,6 +65,7 @@ namespace Unimarket.Infracstruture.Services
                 Id = Guid.NewGuid(),
                 PaymentType = checkOutDTO.PaymentType,
                 TotalPrice = totalPrice,
+                User = user,
                 Status = 1, 
                 CreateAt = DateTime.UtcNow,
                 OrderDetails = new List<OrderDetail>()

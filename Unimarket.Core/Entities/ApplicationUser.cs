@@ -20,7 +20,7 @@ namespace Unimarket.Core.Entities
         public String? RefreshToken { get; set; }
         public DateTime? DateExpireRefreshToken { get; set; }
         public virtual UserAddress? UserAddress { get; set; }
-        public virtual CartItem? CartItem { get; set; }
+        public virtual List<CartItem>? CartItem { get; set; }
         public virtual List<UserNotification>? UserNotifications { get; set; }
         public virtual List<Order>? Orders { get; set; }
         public virtual List<Post>? Posts { get; set; }

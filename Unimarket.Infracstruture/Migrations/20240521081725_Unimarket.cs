@@ -158,14 +158,14 @@ namespace Unimarket.Infracstruture.Migrations
                     TotalPrice = table.Column<float>(type: "real", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Order", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Order_Users_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
+                        name: "FK_Order_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -638,9 +638,7 @@ namespace Unimarket.Infracstruture.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_CartItem_UserId",
                 table: "CartItem",
-                column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Category_ItemCategoryId",
@@ -688,9 +686,9 @@ namespace Unimarket.Infracstruture.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_ApplicationUserId",
+                name: "IX_Order_UserId",
                 table: "Order",
-                column: "ApplicationUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderId",
