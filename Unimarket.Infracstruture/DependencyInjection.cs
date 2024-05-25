@@ -33,6 +33,11 @@ namespace Unimarket.Infracstruture
             services.AddScoped<IItemRepository, ItemRepository>();
             services.AddScoped<IItemService, ItemService>();
 
+            services.AddScoped<IPackageRepository, PackageRepository>();
+            services.AddScoped<IPackageService, PackageService>();
+
+            services.AddScoped<IPaymentService, PaymentService>();
+
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderService, OrderService>();
 

@@ -16,7 +16,7 @@ namespace Unimarket.Core.Entities
         public int Quantity{ get; set; }
         public DateTime RegisterAt { get; set; }
         public bool IsActive { get; set; }
-        public virtual ICollection<Package> Packages { get; set; }
+        public virtual Package Packages { get; set; }
         [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; set; }
     }

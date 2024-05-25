@@ -12,7 +12,7 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240521081725_Unimarket")]
+    [Migration("20240521090736_Unimarket")]
     partial class Unimarket
     {
         /// <inheritdoc />
@@ -622,12 +622,7 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserPackageId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserPackageId");
 
                     b.ToTable("Package");
                 });
@@ -848,6 +843,8 @@ namespace Unimarket.Infracstruture.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PackageId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("UserPackage");
@@ -1031,13 +1028,6 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Unimarket.Core.Entities.Package", b =>
-                {
-                    b.HasOne("Unimarket.Core.Entities.UserPackage", null)
-                        .WithMany("Packages")
-                        .HasForeignKey("UserPackageId");
-                });
-
             modelBuilder.Entity("Unimarket.Core.Entities.Post", b =>
                 {
                     b.HasOne("Unimarket.Core.Entities.PostCategory", null)
@@ -1119,11 +1109,19 @@ namespace Unimarket.Infracstruture.Migrations
 
             modelBuilder.Entity("Unimarket.Core.Entities.UserPackage", b =>
                 {
+                    b.HasOne("Unimarket.Core.Entities.Package", "Packages")
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Unimarket.Core.Entities.ApplicationUser", "User")
                         .WithMany("UserPackages")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Packages");
 
                     b.Navigation("User");
                 });
@@ -1199,11 +1197,6 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("Posts");
-                });
-
-            modelBuilder.Entity("Unimarket.Core.Entities.UserPackage", b =>
-                {
-                    b.Navigation("Packages");
                 });
 #pragma warning restore 612, 618
         }

@@ -41,6 +41,24 @@ namespace Unimarket.Infracstruture.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Package",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Package", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PostCategory",
                 columns: table => new
                 {
@@ -281,6 +299,12 @@ namespace Unimarket.Infracstruture.Migrations
                 {
                     table.PrimaryKey("PK_UserPackage", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_UserPackage_Package_PackageId",
+                        column: x => x.PackageId,
+                        principalTable: "Package",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_UserPackage_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
@@ -389,30 +413,6 @@ namespace Unimarket.Infracstruture.Migrations
                         principalTable: "Post",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Package",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<float>(type: "real", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserPackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Package", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Package_UserPackage_UserPackageId",
-                        column: x => x.UserPackageId,
-                        principalTable: "UserPackage",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -696,11 +696,6 @@ namespace Unimarket.Infracstruture.Migrations
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Package_UserPackageId",
-                table: "Package",
-                column: "UserPackageId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Post_PostCategoryId",
                 table: "Post",
                 column: "PostCategoryId");
@@ -769,6 +764,11 @@ namespace Unimarket.Infracstruture.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserPackage_PackageId",
+                table: "UserPackage",
+                column: "PackageId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserPackage_UserId",
                 table: "UserPackage",
                 column: "UserId");
@@ -818,9 +818,6 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "ItemReview");
 
             migrationBuilder.DropTable(
-                name: "Package");
-
-            migrationBuilder.DropTable(
                 name: "PostImage");
 
             migrationBuilder.DropTable(
@@ -842,13 +839,13 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "UserNotification");
 
             migrationBuilder.DropTable(
+                name: "UserPackage");
+
+            migrationBuilder.DropTable(
                 name: "UserRoles");
 
             migrationBuilder.DropTable(
                 name: "UserTokens");
-
-            migrationBuilder.DropTable(
-                name: "UserPackage");
 
             migrationBuilder.DropTable(
                 name: "UserWallet");
@@ -861,6 +858,9 @@ namespace Unimarket.Infracstruture.Migrations
 
             migrationBuilder.DropTable(
                 name: "Post");
+
+            migrationBuilder.DropTable(
+                name: "Package");
 
             migrationBuilder.DropTable(
                 name: "Roles");
