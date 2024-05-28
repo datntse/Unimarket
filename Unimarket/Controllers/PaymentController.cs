@@ -16,9 +16,9 @@ namespace Unimarket.API.Controllers
         }
 
         [HttpPost("create-payment")]
-        public IActionResult CreatePayment(Guid packageId,int amount, string orderDescription, string locale)
+        public IActionResult CreatePayment(float amount,string orderDescription, string locale)
         {
-            string paymentUrl = _paymentService.CreatePaymentUrl(packageId,amount, orderDescription, locale);
+            string paymentUrl = _paymentService.CreatePaymentUrl(amount, orderDescription, locale);
             return Ok(new { PaymentUrl = paymentUrl });
         }
     }
