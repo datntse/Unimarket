@@ -18,6 +18,9 @@ namespace Unimarket.Infracstruture.Services
     {
         Task<IdentityResult> AddToCart(AddItemDTO AddItem);
         Task<IdentityResult> UpdateItemQuantity(UpdateItemQuantityDTO updateItem);
+        Task<IdentityResult> AddQuantityToCart(UpdateItemQuantityDTO addItem);
+        Task<List<CartItem>> GetCartItemsByUserId(string userId);
+        Task<IdentityResult> DeleteItemInCart(AddItemDTO deleteItem);
         Task<CartItem> FindAsync(Guid id);
         IQueryable<CartItem> GetAll();
         IQueryable<CartItem> Get(Expression<Func<CartItem, bool>> where);
@@ -54,7 +57,10 @@ namespace Unimarket.Infracstruture.Services
         {
             throw new NotImplementedException();
         }
-
+        public async Task<List<CartItem>> GetCartItemsByUserId(string userId)
+        {
+            return await _cartRepository.Get(c => c.User.Id == userId).ToListAsync();
+        }
         public async Task<IdentityResult> AddToCart(AddItemDTO AddItem)
         {
             var user = await _userManager.FindByIdAsync(AddItem.UserId);
@@ -137,6 +143,24 @@ namespace Unimarket.Infracstruture.Services
 
             return IdentityResult.Failed(new IdentityError { Description = "Could not save changes to the database." });
         }
+        public async Task<IdentityResult> DeleteItemInCart(AddItemDTO deleteItem)
+        {
+            var cartItem = await _cartRepository.Get(c => c.User.Id == deleteItem.UserId && c.ItemId == deleteItem.ItemId).FirstOrDefaultAsync();
+            if (cartItem == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Item not found in cart." });
+            }
+
+            _cartRepository.Remove(cartItem);
+
+            var saveResult = await _unitOfWork.SaveChangeAsync();
+            if (saveResult)
+            {
+                return IdentityResult.Success;
+            }
+
+            return IdentityResult.Failed(new IdentityError { Description = "Could not remove item from the cart." });
+        }
 
         public Task<bool> CheckExist(Expression<Func<CartItem, bool>> where)
         {
@@ -165,7 +189,7 @@ namespace Unimarket.Infracstruture.Services
 
         public IQueryable<CartItem> GetAll()
         {
-            throw new NotImplementedException();
+            return _cartRepository.GetAll();
         }
 
         public async Task<bool> Remove(Guid id)
@@ -181,6 +205,62 @@ namespace Unimarket.Infracstruture.Services
         public void Update(CartItem x)
         {
             _cartRepository.Update(x);
+        }
+
+        public async Task<IdentityResult> AddQuantityToCart(UpdateItemQuantityDTO addItem)
+        {
+            var user = await _userManager.FindByIdAsync(addItem.UserId);
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "User does not exist." });
+            }
+
+            var item = await _itemRepository.FindAsync(addItem.ItemId);
+            if (item == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Item does not exist." });
+            }
+
+            var existingCartItem = _cartRepository.Get(c => c.User.Id == addItem.UserId && c.ItemId == addItem.ItemId).FirstOrDefault();
+            if (existingCartItem != null)
+            {
+                existingCartItem.Quantity += addItem.Quantity;
+                existingCartItem.UpdateAt = DateTime.UtcNow;
+
+                if (existingCartItem.Quantity <= 0)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Quantity must be greater than 0." });
+                }
+                else
+                {
+                    _cartRepository.Update(existingCartItem);
+                }
+            }
+            else
+            {
+                // Item does not exist, add a new CartItem if the quantity is positive
+                if (addItem.Quantity > 0)
+                {
+                    var newCartItem = new CartItem
+                    {
+                        Id = Guid.NewGuid(),
+                        ItemId = addItem.ItemId,
+                        User = user,
+                        Quantity = addItem.Quantity,
+                        CreateAt = DateTime.UtcNow,
+                        UpdateAt = DateTime.UtcNow,
+                    };
+                    await _cartRepository.AddAsync(newCartItem);
+                }
+            }
+
+            var saveResult = await _unitOfWork.SaveChangeAsync();
+            if (saveResult)
+            {
+                return IdentityResult.Success;
+            }
+
+            return IdentityResult.Failed(new IdentityError { Description = "Could not save changes to the database." });
         }
     }
 }
