@@ -290,9 +290,6 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Property<DateTime?>("DeleteAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("ItemCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -307,8 +304,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ItemCategoryId");
 
                     b.HasIndex("PostCategoryId");
 
@@ -335,9 +330,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ItemCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -359,8 +351,6 @@ namespace Unimarket.Infracstruture.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItemCategoryId");
-
                     b.HasIndex("OrderDetailId");
 
                     b.ToTable("Item");
@@ -379,6 +369,10 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ItemId");
 
                     b.ToTable("ItemCategory");
                 });
@@ -402,9 +396,6 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("ItemId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -416,8 +407,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ItemId");
 
                     b.ToTable("ItemDiscount");
                 });
@@ -937,10 +926,6 @@ namespace Unimarket.Infracstruture.Migrations
 
             modelBuilder.Entity("Unimarket.Core.Entities.Category", b =>
                 {
-                    b.HasOne("Unimarket.Core.Entities.ItemCategory", null)
-                        .WithMany("Categories")
-                        .HasForeignKey("ItemCategoryId");
-
                     b.HasOne("Unimarket.Core.Entities.PostCategory", null)
                         .WithMany("Categories")
                         .HasForeignKey("PostCategoryId");
@@ -948,26 +933,34 @@ namespace Unimarket.Infracstruture.Migrations
 
             modelBuilder.Entity("Unimarket.Core.Entities.Item", b =>
                 {
-                    b.HasOne("Unimarket.Core.Entities.ItemCategory", null)
-                        .WithMany("Items")
-                        .HasForeignKey("ItemCategoryId");
-
                     b.HasOne("Unimarket.Core.Entities.OrderDetail", null)
                         .WithMany("Items")
                         .HasForeignKey("OrderDetailId");
                 });
 
-            modelBuilder.Entity("Unimarket.Core.Entities.ItemDiscount", b =>
+            modelBuilder.Entity("Unimarket.Core.Entities.ItemCategory", b =>
                 {
-                    b.HasOne("Unimarket.Core.Entities.Item", null)
-                        .WithMany("ItemDiscounts")
-                        .HasForeignKey("ItemId");
+                    b.HasOne("Unimarket.Core.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Unimarket.Core.Entities.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("Unimarket.Core.Entities.ItemImage", b =>
                 {
                     b.HasOne("Unimarket.Core.Entities.Item", "Item")
-                        .WithMany("ItemImages")
+                        .WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1076,7 +1069,7 @@ namespace Unimarket.Infracstruture.Migrations
             modelBuilder.Entity("Unimarket.Core.Entities.UserNotification", b =>
                 {
                     b.HasOne("Unimarket.Core.Entities.Item", "Item")
-                        .WithMany("UserNotifications")
+                        .WithMany()
                         .HasForeignKey("ItemId");
 
                     b.HasOne("Unimarket.Core.Entities.Notification", "Notification")
@@ -1149,22 +1142,6 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Navigation("UserNotifications");
 
                     b.Navigation("UserPackages");
-                });
-
-            modelBuilder.Entity("Unimarket.Core.Entities.Item", b =>
-                {
-                    b.Navigation("ItemDiscounts");
-
-                    b.Navigation("ItemImages");
-
-                    b.Navigation("UserNotifications");
-                });
-
-            modelBuilder.Entity("Unimarket.Core.Entities.ItemCategory", b =>
-                {
-                    b.Navigation("Categories");
-
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Unimarket.Core.Entities.Notification", b =>

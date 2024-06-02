@@ -43,7 +43,7 @@ namespace Unimarket.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("sigIn")]
+        [HttpPost("signIn")]
         public async Task<IActionResult> SignIn(UserSignIn signIn)
         {
             var user = await _userService.SignInAsync(signIn);
@@ -109,14 +109,12 @@ namespace Unimarket.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("currentUser")]
+        [HttpGet("getUserId")]
         public async Task<IActionResult> getCurrentUserId()
         {
-            var user = _currentUserService.GetUser();
-            return Ok(new { user });
+            var userId = _currentUserService.GetUserId();
+            return Ok(userId);
         }
-
-
 
     }
 }

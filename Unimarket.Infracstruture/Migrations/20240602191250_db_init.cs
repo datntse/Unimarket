@@ -6,22 +6,27 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Unimarket.Infracstruture.Migrations
 {
     /// <inheritdoc />
-    public partial class Unimarket : Migration
+    public partial class dbinit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ItemCategory",
+                name: "ItemDiscount",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Percent = table.Column<double>(type: "float", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItemCategory", x => x.Id);
+                    table.PrimaryKey("PK_ItemDiscount", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -128,17 +133,11 @@ namespace Unimarket.Infracstruture.Migrations
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ItemCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     PostCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Category", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Category_ItemCategory_ItemCategoryId",
-                        column: x => x.ItemCategoryId,
-                        principalTable: "ItemCategory",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Category_PostCategory_PostCategoryId",
                         column: x => x.PostCategoryId,
@@ -452,17 +451,11 @@ namespace Unimarket.Infracstruture.Migrations
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ItemCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     OrderDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Item", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Item_ItemCategory_ItemCategoryId",
-                        column: x => x.ItemCategoryId,
-                        principalTable: "ItemCategory",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Item_OrderDetail_OrderDetailId",
                         column: x => x.OrderDetailId,
@@ -498,27 +491,28 @@ namespace Unimarket.Infracstruture.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ItemDiscount",
+                name: "ItemCategory",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Percent = table.Column<double>(type: "float", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItemDiscount", x => x.Id);
+                    table.PrimaryKey("PK_ItemCategory", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ItemDiscount_Item_ItemId",
+                        name: "FK_ItemCategory_Category_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ItemCategory_Item_ItemId",
                         column: x => x.ItemId,
                         principalTable: "Item",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -641,19 +635,9 @@ namespace Unimarket.Infracstruture.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Category_ItemCategoryId",
-                table: "Category",
-                column: "ItemCategoryId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Category_PostCategoryId",
                 table: "Category",
                 column: "PostCategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Item_ItemCategoryId",
-                table: "Item",
-                column: "ItemCategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Item_OrderDetailId",
@@ -661,8 +645,13 @@ namespace Unimarket.Infracstruture.Migrations
                 column: "OrderDetailId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ItemDiscount_ItemId",
-                table: "ItemDiscount",
+                name: "IX_ItemCategory_CategoryId",
+                table: "ItemCategory",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ItemCategory_ItemId",
+                table: "ItemCategory",
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
@@ -803,7 +792,7 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "CartItem");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "ItemCategory");
 
             migrationBuilder.DropTable(
                 name: "ItemDiscount");
@@ -848,6 +837,9 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
+                name: "Category");
+
+            migrationBuilder.DropTable(
                 name: "UserWallet");
 
             migrationBuilder.DropTable(
@@ -864,9 +856,6 @@ namespace Unimarket.Infracstruture.Migrations
 
             migrationBuilder.DropTable(
                 name: "Roles");
-
-            migrationBuilder.DropTable(
-                name: "ItemCategory");
 
             migrationBuilder.DropTable(
                 name: "OrderDetail");

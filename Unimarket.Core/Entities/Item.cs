@@ -20,8 +20,5 @@ namespace Unimarket.Core.Entities
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
         public DateTime? DeleteAt { get; set; }
-        public virtual ICollection<ItemImage> ItemImages { get; set; }
-        public virtual ICollection<ItemDiscount> ItemDiscounts { get; set; }
-        public virtual ICollection<UserNotification> UserNotifications { get; set; }
     }
 }

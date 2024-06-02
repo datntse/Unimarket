@@ -14,8 +14,8 @@ namespace Unimarket.Core.Entities
         public Guid Id { get; set; }
         public Guid CategoryId { get; set; }
         public Guid ItemId { get; set; }
-        public virtual ICollection<Category> Categories { get; set; }
-        public virtual ICollection<Item> Items { get; set; }
+        public virtual Category Category { get; set; }
+        public virtual Item Item { get; set; }
 
     }
 }
