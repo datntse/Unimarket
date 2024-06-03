@@ -17,6 +17,6 @@ namespace Unimarket.Core.Entities
         public int Quantity { get; set; }
         public float TotalPrice { get; set; }
         public virtual Order Order { get; set; }
-        public virtual ICollection<Item> Items { get; set; }
+        public Item Items { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Unimarket.Infracstruture.Migrations
 {
     /// <inheritdoc />
-    public partial class dbinit : Migration
+    public partial class Unimarket : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

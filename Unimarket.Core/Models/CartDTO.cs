@@ -14,23 +14,28 @@ namespace Unimarket.Core.Models
         [Key]
         public Guid Id { get; set; }
         public Guid ItemId { get; set; }
+        public string userId { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
         public int Quantity { get; set; }
-        public virtual ICollection<Item> Items { get; set; }
-        [ForeignKey("UserId")]
-        public virtual ApplicationUser? User { get; set; }
+        public ItemCartVM Item { get; set; }
+        
+    }
+    public class ItemCartVM
+    {
+        public String Name { get; set; }
+        public String Description { get; set; }
+        public float Price { get; set; }
+        public String ImageUrl { get; set; }
     }
 
     public class AddItemDTO
     {
         public Guid ItemId { get; set; }
-        public string UserId {  get; set; }
     }
     public class UpdateItemQuantityDTO
     {
         public Guid ItemId { get; set; }
-        public string UserId { get; set; }
         public int Quantity { get; set; }
     }
 }

@@ -12,8 +12,8 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240602191250_db_init")]
-    partial class dbinit
+    [Migration("20240603210818_Unimarket")]
+    partial class Unimarket
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Unimarket.API.Helper;
+using Unimarket.API.Helpers;
 using Unimarket.API.Services;
 using Unimarket.Core.Entities;
 using Unimarket.Core.Models;
@@ -29,11 +31,12 @@ namespace Unimarket.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] DefaultSearch defaultSearch)
         {
             try
             {
-                var itemList = _itemService.GetAll();
+                var itemList = _itemService.GetAll().Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
+                      , defaultSearch.isAscending).ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
                 var result = _mapper.Map<List<ItemDTO>>(itemList);
                 var result2 = result.Select(_ => new ItemVM
                 {

@@ -16,7 +16,7 @@ namespace Unimarket.Core.Entities
         public float TotalPrice { get; set; }
         public int Status { get; set; }
         public DateTime CreateAt { get; set; }
-        public virtual List<OrderDetail> OrderDetails { get; set; }
+        public ICollection<OrderDetail> OrderDetails { get; set; }
         [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; set; }
     }

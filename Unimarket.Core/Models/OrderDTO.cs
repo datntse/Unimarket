@@ -19,9 +19,34 @@ namespace Unimarket.Core.Models
         public virtual List<OrderDetail> OrderDetails { get; set; }
     }
 
+    public class OrderVM
+    {
+        public Guid Id { get; set; }
+        public String PaymentType { get; set; }
+        public float TotalPrice { get; set; }
+        public int Status { get; set; }
+        public DateTime CreateAt { get; set; }
+        public string Username {  get; set; }
+        public List<OrderdetailVM> OrderdetailVM { get; set; }
+    }
+
+    public class OrderdetailVM
+    {
+        public Guid Id { get; set; }       
+        public int Quantity { get; set; }
+        public float TotalPrice { get; set; }
+        public ItemsVM ItemsVMs { get; set; }
+    }
+
+    public class ItemsVM
+    {
+        public String Name { get; set; }
+        public float Price { get; set; }
+        public String ImageUrl { get; set; }
+    }
+
     public class CheckOutDTO 
     {
-        public string UserId {  get; set; }
         public string PaymentType { get; set; }
     }
 }

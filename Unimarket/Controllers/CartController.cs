@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Unimarket.API.Helper;
+using Unimarket.API.Helpers;
+using Unimarket.API.Services;
 using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Services;
 
@@ -10,14 +14,24 @@ namespace Unimarket.API.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
-        public CartController(ICartService cartService)
+        private readonly ICurrentUserService _currentUserService;
+        public CartController(ICartService cartService,ICurrentUserService currentUserService)
         {
             _cartService = cartService;
+            _currentUserService = currentUserService;
         }
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCartItemsByUserId(string userId)
+        [HttpGet("get/usercart")]
+        public async Task<IActionResult> GetCartItemsByUserId([FromQuery] DefaultSearch defaultSearch)
         {
-            var cartItems = await _cartService.GetCartItemsByUserId(userId);
+            var userId = _currentUserService.GetUserId().ToString();
+            if(userId == null)
+            {
+                NotFound("Need Login!!!!");
+            }
+            var cartItems = await _cartService.GetCartItemsByUserId(userId).Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
+                      , defaultSearch.isAscending)
+                      .ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
+
             if (cartItems == null || !cartItems.Any())
             {
                 return NotFound("No cart items found for this user.");
@@ -27,7 +41,8 @@ namespace Unimarket.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(AddItemDTO model)
         {
-            var result = await _cartService.AddToCart(model);
+            var userId = _currentUserService.GetUserId().ToString();
+            var result = await _cartService.AddToCart(userId, model);
 
             if (result.Succeeded)
             {
@@ -41,7 +56,12 @@ namespace Unimarket.API.Controllers
         [Route("update")]
         public async Task<IActionResult> UpdateItemQuantity(UpdateItemQuantityDTO model)
         {
-            var result = await _cartService.UpdateItemQuantity(model);
+            var userId = _currentUserService.GetUserId().ToString();
+            if (userId == null)
+            {
+                NotFound("Need Login!!!!");
+            }
+            var result = await _cartService.UpdateItemQuantity(userId,model);
 
             if (result.Succeeded)
             {
@@ -54,7 +74,12 @@ namespace Unimarket.API.Controllers
         [HttpPost("add-quantity")]
         public async Task<IActionResult> AddQuantityToCart(UpdateItemQuantityDTO model)
         {
-            var result = await _cartService.AddQuantityToCart(model);
+            var userId = _currentUserService.GetUserId().ToString();
+            if (userId == null)
+            {
+                NotFound("Need Login!!!!");
+            }
+            var result = await _cartService.AddQuantityToCart(userId,model);
 
             if (result.Succeeded)
             {
@@ -66,7 +91,8 @@ namespace Unimarket.API.Controllers
         [HttpDelete("delete-item-in-cart")]
         public async Task<IActionResult> DeleteItemInCart(AddItemDTO deleteItem)
         {
-            var result = await _cartService.DeleteItemInCart(deleteItem);
+            var userId = _currentUserService.GetUserId().ToString();
+            var result = await _cartService.DeleteItemInCart(userId,deleteItem);
 
             if (result.Succeeded)
             {
