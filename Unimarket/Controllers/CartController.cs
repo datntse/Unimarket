@@ -21,13 +21,13 @@ namespace Unimarket.API.Controllers
             _currentUserService = currentUserService;
         }
         [HttpGet("get/usercart")]
-        public async Task<IActionResult> GetCartItemsByUserId([FromQuery] DefaultSearch defaultSearch)
+        public async Task<IActionResult> GetCartItemsByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery]string userId)
         {
-            var userId = _currentUserService.GetUserId().ToString();
-            if(userId == null)
-            {
-                NotFound("Need Login!!!!");
-            }
+            //var userId = _currentUserService.GetUserId().ToString();
+            //if(userId == null)
+            //{
+            //    NotFound("Need Login!!!!");
+            //}
             var cartItems = await _cartService.GetCartItemsByUserId(userId).Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
                       , defaultSearch.isAscending)
                       .ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
@@ -36,8 +36,8 @@ namespace Unimarket.API.Controllers
             {
                 return NotFound("No cart items found for this user.");
             }
-            return Ok(cartItems);
-        }
+            return Ok(new { total = cartItems.Count(), data = cartItems, currenPage = defaultSearch.currentPage });
+		}
         [HttpPost]
         public async Task<IActionResult> AddToCart([FromBody] AddItemDTO addItemDTO)
         {
@@ -52,14 +52,14 @@ namespace Unimarket.API.Controllers
 
         [HttpPost]
         [Route("update")]
-        public async Task<IActionResult> UpdateItemQuantity(UpdateItemQuantityDTO model)
+        public async Task<IActionResult> UpdateItemQuantity([FromBody] UpdateItemQuantityDTO model)
         {
             var userId = _currentUserService.GetUserId().ToString();
             if (userId == null)
             {
                 NotFound("Need Login!!!!");
             }
-            var result = await _cartService.UpdateItemQuantity(userId,model);
+            var result = await _cartService.UpdateItemQuantity(model);
 
             if (result.Succeeded)
             {
@@ -72,12 +72,11 @@ namespace Unimarket.API.Controllers
         [HttpPost("add-quantity")]
         public async Task<IActionResult> AddQuantityToCart(UpdateItemQuantityDTO model)
         {
-            var userId = _currentUserService.GetUserId().ToString();
-            if (userId == null)
+            if (model.UserId == null)
             {
                 NotFound("Need Login!!!!");
             }
-            var result = await _cartService.AddQuantityToCart(userId,model);
+            var result = await _cartService.AddQuantityToCart(model);
 
             if (result.Succeeded)
             {
@@ -87,10 +86,9 @@ namespace Unimarket.API.Controllers
             return BadRequest(result.Errors);
         }
         [HttpDelete("delete-item-in-cart")]
-        public async Task<IActionResult> DeleteItemInCart(AddItemDTO deleteItem)
+        public async Task<IActionResult> DeleteItemInCart([FromBody] AddItemDTO deleteItem)
         {
-            var userId = _currentUserService.GetUserId().ToString();
-            var result = await _cartService.DeleteItemInCart(userId,deleteItem);
+            var result = await _cartService.DeleteItemInCart(deleteItem);
 
             if (result.Succeeded)
             {
