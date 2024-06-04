@@ -40,6 +40,7 @@ namespace Unimarket.Infracstruture.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICartRepository _cartRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly IItemRepository _itemRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPaymentService _paymentService;
         private readonly ILogger<OrderService> _logger;
@@ -51,6 +52,7 @@ namespace Unimarket.Infracstruture.Services
             ICartRepository cartRepository,
             IOrderRepository orderRepository,
             UserManager<ApplicationUser> userManager,
+            IItemRepository itemRepository,
             IPaymentService paymentService,
             ILogger<OrderService> logger,
             IConfiguration configuration,
@@ -60,6 +62,7 @@ namespace Unimarket.Infracstruture.Services
             _cartRepository = cartRepository;
             _orderRepository = orderRepository;
             _userManager = userManager;
+            _itemRepository = itemRepository;
             _paymentService = paymentService;
             _logger = logger;
             _configuration = configuration;
@@ -99,7 +102,10 @@ namespace Unimarket.Infracstruture.Services
                     Quantity = cartItem.Quantity,
                     TotalPrice = cartItem.Quantity * cartItem.Items.Price
                 };
-
+                var item = await _itemRepository.FindAsync(cartItem.ItemId);
+                item.Quantity -= cartItem.Quantity;
+                _itemRepository.Update(item);
+                await _unitOfWork.SaveChangeAsync();
                 order.OrderDetails.Add(orderDetail);
             }
 

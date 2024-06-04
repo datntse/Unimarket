@@ -111,7 +111,7 @@ namespace Unimarket.Infracstruture.Services
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User not found." });
             }
-
+            var item = await _itemRepository.FindAsync(updateItem.ItemId);
 
             var cartItems = _cartRepository
             .Get(c => c.User.Id == userId)
@@ -123,6 +123,10 @@ namespace Unimarket.Infracstruture.Services
             if (existingCartItem == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Item not found in cart." });
+            }
+            if (item.Quantity < updateItem.Quantity)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Quantity not enough!!!" });
             }
 
             if (updateItem.Quantity <= 0)
@@ -231,12 +235,16 @@ namespace Unimarket.Infracstruture.Services
                 if (existingCartItem.Quantity <= 0)
                 {
                     return IdentityResult.Failed(new IdentityError { Description = "Quantity must be greater than 0." });
+                }if(item.Quantity < existingCartItem.Quantity)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Quantity not enough!!!" });
                 }
                 else
                 {
                     _cartRepository.Update(existingCartItem);
                 }
-            }
+            } 
+
             else
             {
                 // Item does not exist, add a new CartItem if the quantity is positive
