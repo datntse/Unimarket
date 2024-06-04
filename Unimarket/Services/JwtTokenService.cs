@@ -36,7 +36,8 @@ namespace Unimarket.API.Services
         {
             var authClaims = new List<Claim>
             {
-                new Claim("userId", user.Id.ToString()),
+				 new Claim("UserId", user.Id.ToString()),
+				new Claim(ClaimTypes.UserData, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
