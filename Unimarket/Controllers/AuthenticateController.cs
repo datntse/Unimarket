@@ -108,8 +108,8 @@ namespace Unimarket.API.Controllers
             var result = _userService.Get(_ => _.Id.Equals(id));
             return Ok(result);
         }
-
-        [HttpGet("getUserId")]
+		[AllowAnonymous]
+		[HttpGet("getUserId")]
         public async Task<IActionResult> getCurrentUserId()
         {
             var userId = _currentUserService.GetUserId();
