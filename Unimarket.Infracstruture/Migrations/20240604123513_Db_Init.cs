@@ -6,11 +6,32 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Unimarket.Infracstruture.Migrations
 {
     /// <inheritdoc />
-    public partial class Unimarket : Migration
+    public partial class DbInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Item",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductDetail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Item", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "ItemDiscount",
                 columns: table => new
@@ -124,6 +145,47 @@ namespace Unimarket.Infracstruture.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ItemImage",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemImage", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ItemImage_Item_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Item",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ItemInfo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SoldQuantity = table.Column<int>(type: "int", nullable: false),
+                    Rate = table.Column<int>(type: "int", nullable: false),
+                    CommentQuantity = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemInfo", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ItemInfo_Item_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Item",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Category",
                 columns: table => new
                 {
@@ -162,6 +224,63 @@ namespace Unimarket.Infracstruture.Migrations
                         name: "FK_RoleClaims_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartItem",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartItem", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CartItem_Item_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Item",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CartItem_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ItemReview",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemReview", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ItemReview_Item_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Item",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ItemReview_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -375,122 +494,6 @@ namespace Unimarket.Infracstruture.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderDetail",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    TotalPrice = table.Column<float>(type: "real", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderDetail", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrderDetail_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PostImage",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PostImage", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PostImage_Post_PostId",
-                        column: x => x.PostId,
-                        principalTable: "Post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TransitionHistory",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Amount = table.Column<float>(type: "real", nullable: false),
-                    Method = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransitionHistory", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TransitionHistory_UserWallet_UserWalletId",
-                        column: x => x.UserWalletId,
-                        principalTable: "UserWallet",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Item",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<float>(type: "real", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    OrderDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Item", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Item_OrderDetail_OrderDetailId",
-                        column: x => x.OrderDetailId,
-                        principalTable: "OrderDetail",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CartItem",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CartItem", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CartItem_Item_ItemId",
-                        column: x => x.ItemId,
-                        principalTable: "Item",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CartItem_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ItemCategory",
                 columns: table => new
                 {
@@ -516,72 +519,47 @@ namespace Unimarket.Infracstruture.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ItemImage",
+                name: "OrderDetail",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItemImage", x => x.Id);
+                    table.PrimaryKey("PK_OrderDetail", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ItemImage_Item_ItemId",
+                        name: "FK_OrderDetail_Item_ItemId",
                         column: x => x.ItemId,
                         principalTable: "Item",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderDetail_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ItemInfo",
+                name: "PostImage",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SoldQuantity = table.Column<int>(type: "int", nullable: false),
-                    Rate = table.Column<int>(type: "int", nullable: false),
-                    CommentQuantity = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItemInfo", x => x.Id);
+                    table.PrimaryKey("PK_PostImage", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ItemInfo_Item_ItemId",
-                        column: x => x.ItemId,
-                        principalTable: "Item",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ItemReview",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeleteAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ItemReview", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ItemReview_Item_ItemId",
-                        column: x => x.ItemId,
-                        principalTable: "Item",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ItemReview_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
+                        name: "FK_PostImage_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -624,6 +602,29 @@ namespace Unimarket.Infracstruture.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TransitionHistory",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Amount = table.Column<float>(type: "real", nullable: false),
+                    Method = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserWalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransitionHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TransitionHistory_UserWallet_UserWalletId",
+                        column: x => x.UserWalletId,
+                        principalTable: "UserWallet",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CartItem_ItemId",
                 table: "CartItem",
@@ -638,11 +639,6 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "IX_Category_PostCategoryId",
                 table: "Category",
                 column: "PostCategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Item_OrderDetailId",
-                table: "Item",
-                column: "OrderDetailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ItemCategory_CategoryId",
@@ -678,6 +674,11 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "IX_Order_UserId",
                 table: "Order",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetail_ItemId",
+                table: "OrderDetail",
+                column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderId",
@@ -807,6 +808,9 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "ItemReview");
 
             migrationBuilder.DropTable(
+                name: "OrderDetail");
+
+            migrationBuilder.DropTable(
                 name: "PostImage");
 
             migrationBuilder.DropTable(
@@ -840,6 +844,9 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "Category");
 
             migrationBuilder.DropTable(
+                name: "Order");
+
+            migrationBuilder.DropTable(
                 name: "UserWallet");
 
             migrationBuilder.DropTable(
@@ -858,13 +865,7 @@ namespace Unimarket.Infracstruture.Migrations
                 name: "Roles");
 
             migrationBuilder.DropTable(
-                name: "OrderDetail");
-
-            migrationBuilder.DropTable(
                 name: "PostCategory");
-
-            migrationBuilder.DropTable(
-                name: "Order");
 
             migrationBuilder.DropTable(
                 name: "Users");

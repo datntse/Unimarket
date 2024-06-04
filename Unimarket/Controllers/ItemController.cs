@@ -43,6 +43,7 @@ namespace Unimarket.API.Controllers
 					Name = result.Name,
 					Description = result.Description,
 					ImageUrl = result.ImageUrl,
+                    ProductDetail = result.ProductDetail,
 					Price = result.Price,
 					Quantity = result.Quantity,
 					Status = result.Status,
@@ -74,6 +75,7 @@ namespace Unimarket.API.Controllers
                     // chõ này chưa map
                     Id = _.Id,
                     Name = _.Name,
+                    ProductDetail = _.ProductDetail,
                     Description = _.Description,
                     ImageUrl = _.ImageUrl,
                     Price = _.Price,

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Unimarket.Core.Entities;
+using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Services;
 
 namespace Unimarket.API.Controllers
@@ -25,6 +27,58 @@ namespace Unimarket.API.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }  
+        }
+
+        [HttpGet("id")]
+        public async Task<IActionResult> GetCateById(string id)
+        {
+            try
+            {
+                var result = await _categoryService.FindAsync(Guid.Parse(id));
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Create(String categoryName)
+        {
+            try
+            {
+                Category cate = new Category
+                {
+                    Id = Guid.NewGuid(),
+                    Name = categoryName,
+                    CreateAt = DateTime.Now,
+                    Type = 1,
+                };
+                await _categoryService.AddAsync(cate);
+                await _categoryService.SaveChangeAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(CategoryUM categoryUM)
+        {
+            try
+            {
+                var result = await _categoryService.FindAsync(categoryUM.Id);
+                result.Name = categoryUM.Name;
+                 _categoryService.Update(result);
+                await _categoryService.SaveChangeAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
     }
 }

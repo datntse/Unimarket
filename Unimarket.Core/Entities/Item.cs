@@ -12,6 +12,7 @@ namespace Unimarket.Core.Entities
         [Key]
         public Guid Id { get; set; }
         public String Name { get; set; }
+        public String ProductDetail { get; set; }
         public String Description { get; set; }
         public int Quantity { get; set; }
         public float Price { get; set; }

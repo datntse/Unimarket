@@ -12,8 +12,8 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240603210818_Unimarket")]
-    partial class Unimarket
+    [Migration("20240604123513_Db_Init")]
+    partial class DbInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -337,11 +337,12 @@ namespace Unimarket.Infracstruture.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("OrderDetailId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<float>("Price")
                         .HasColumnType("real");
+
+                    b.Property<string>("ProductDetail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -353,8 +354,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderDetailId");
 
                     b.ToTable("Item");
                 });
@@ -576,6 +575,8 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
 
                     b.HasIndex("OrderId");
 
@@ -934,13 +935,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasForeignKey("PostCategoryId");
                 });
 
-            modelBuilder.Entity("Unimarket.Core.Entities.Item", b =>
-                {
-                    b.HasOne("Unimarket.Core.Entities.OrderDetail", null)
-                        .WithMany("Items")
-                        .HasForeignKey("OrderDetailId");
-                });
-
             modelBuilder.Entity("Unimarket.Core.Entities.ItemCategory", b =>
                 {
                     b.HasOne("Unimarket.Core.Entities.Category", "Category")
@@ -1012,11 +1006,19 @@ namespace Unimarket.Infracstruture.Migrations
 
             modelBuilder.Entity("Unimarket.Core.Entities.OrderDetail", b =>
                 {
+                    b.HasOne("Unimarket.Core.Entities.Item", "Items")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Unimarket.Core.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Items");
 
                     b.Navigation("Order");
                 });
@@ -1155,11 +1157,6 @@ namespace Unimarket.Infracstruture.Migrations
             modelBuilder.Entity("Unimarket.Core.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
-                });
-
-            modelBuilder.Entity("Unimarket.Core.Entities.OrderDetail", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Unimarket.Core.Entities.Post", b =>
