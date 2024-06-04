@@ -31,21 +31,23 @@ namespace Unimarket.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll([FromQuery] DefaultSearch defaultSearch)
+        public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
         {
             try
             {
-                var itemList = _itemService.GetAll().Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
+                var resultListItem = _itemService.GetAll();
+
+				var itemList = await resultListItem.Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
                       , defaultSearch.isAscending).ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
                 var result = _mapper.Map<List<ItemDTO>>(itemList);
                 var result2 = result.Select(_ => new ItemVM
                 {
                     // chõ này chưa map
                     Id = _.Id,
-                    Name = _.Name,  
-                    Description = _.Description,    
-                    ImageUrl = _.ImageUrl,  
-                    Price = _.Price,    
+                    Name = _.Name,
+                    Description = _.Description,
+                    ImageUrl = _.ImageUrl,
+                    Price = _.Price,
                     Quantity = _.Quantity,
                     Status = _.Status,
                     CategoryName = _itemCategoryService.Get(cate => cate.ItemId.Equals(_.Id)).Include(cate => cate.Category)
@@ -53,7 +55,7 @@ namespace Unimarket.API.Controllers
                     SubImageUrl = _itemImageService.Get(image => image.Item.Id.Equals(_.Id)).Select(item => item.ImageUrl).ToList(),
                 });
 
-                return Ok(result2);
+                return Ok(new { total = resultListItem.Count(), data = result2, currenPage = defaultSearch.currentPage });
             }
             catch (Exception ex)
             {
