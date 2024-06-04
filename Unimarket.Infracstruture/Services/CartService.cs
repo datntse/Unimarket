@@ -17,7 +17,7 @@ namespace Unimarket.Infracstruture.Services
 {
     public interface ICartService
     {
-        Task<IdentityResult> AddToCart(string userId, AddItemDTO AddItem);
+        Task<IdentityResult> AddToCart(AddItemDTO AddItem);
         Task<IdentityResult> UpdateItemQuantity(string userId, UpdateItemQuantityDTO updateItem);
         Task<IdentityResult> AddQuantityToCart(string userId, UpdateItemQuantityDTO addItem);
         //Task<List<CartItem>> GetCartItemsByUserId(string userId);
@@ -63,16 +63,16 @@ namespace Unimarket.Infracstruture.Services
         {
             return await _cartRepository.Get(c => c.User.Id == userId).ToListAsync();
         }
-        public async Task<IdentityResult> AddToCart(string userId ,AddItemDTO AddItem)
+        public async Task<IdentityResult> AddToCart(AddItemDTO AddItem)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AddItem.UserId);
 
-            var items = await _itemRepository.FindAsync(AddItem.ItemId);
+            var items = await _itemRepository.FindAsync(Guid.Parse(AddItem.ItemId));
             if (user == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User does not exist." });
             }
-            var existingCartItem = _cartRepository.Get(c => c.User.Id == userId && c.ItemId == AddItem.ItemId).FirstOrDefault();
+            var existingCartItem = _cartRepository.Get(c => c.User.Id == AddItem.UserId && c.ItemId == Guid.Parse(AddItem.ItemId)).FirstOrDefault();
             if (existingCartItem != null)
             {
                 // Item exists, update the quantity
@@ -150,7 +150,7 @@ namespace Unimarket.Infracstruture.Services
         }
         public async Task<IdentityResult> DeleteItemInCart(string userId, AddItemDTO deleteItem)
         {
-            var cartItem = await _cartRepository.Get(c => c.User.Id == userId && c.ItemId == deleteItem.ItemId).FirstOrDefaultAsync();
+            var cartItem = await _cartRepository.Get(c => c.User.Id == userId && c.ItemId == Guid.Parse(deleteItem.ItemId)).FirstOrDefaultAsync();
             if (cartItem == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Item not found in cart." });

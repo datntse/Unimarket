@@ -43,7 +43,7 @@ namespace Unimarket.API.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Create(String categoryName)
+        public async Task<IActionResult> Create([FromBody] String categoryName)
         {
             try
             {

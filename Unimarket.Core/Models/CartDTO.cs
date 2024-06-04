@@ -31,7 +31,8 @@ namespace Unimarket.Core.Models
 
     public class AddItemDTO
     {
-        public Guid ItemId { get; set; }
+        public String UserId { get; set; }
+        public String ItemId { get; set; }
     }
     public class UpdateItemQuantityDTO
     {
