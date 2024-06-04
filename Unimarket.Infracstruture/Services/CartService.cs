@@ -67,12 +67,12 @@ namespace Unimarket.Infracstruture.Services
         {
             var user = await _userManager.FindByIdAsync(AddItem.UserId);
 
-            var items = await _itemRepository.FindAsync(AddItem.ItemId);
+            var items = await _itemRepository.FindAsync(Guid.Parse(AddItem.ItemId));
             if (user == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User does not exist." });
             }
-            var existingCartItem = _cartRepository.Get(c => c.User.Id == AddItem.UserId && c.ItemId == AddItem.ItemId).FirstOrDefault();
+            var existingCartItem = _cartRepository.Get(c => c.User.Id == AddItem.UserId && c.ItemId == Guid.Parse(AddItem.ItemId)).FirstOrDefault();
             if (existingCartItem != null)
             {
                 // Item exists, update the quantity
@@ -150,7 +150,7 @@ namespace Unimarket.Infracstruture.Services
         }
         public async Task<IdentityResult> DeleteItemInCart(string userId, AddItemDTO deleteItem)
         {
-            var cartItem = await _cartRepository.Get(c => c.User.Id == userId && c.ItemId == deleteItem.ItemId).FirstOrDefaultAsync();
+            var cartItem = await _cartRepository.Get(c => c.User.Id == userId && c.ItemId == Guid.Parse(deleteItem.ItemId)).FirstOrDefaultAsync();
             if (cartItem == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Item not found in cart." });

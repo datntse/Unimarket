@@ -39,16 +39,14 @@ namespace Unimarket.API.Controllers
             return Ok(cartItems);
         }
         [HttpPost]
-        public async Task<IActionResult> AddToCart([FromBody] AddItemDTO model)
+        public async Task<IActionResult> AddToCart([FromBody] AddItemDTO addItemDTO)
         {
-            //var userId = _currentUserService.GetUserId().ToString();
-            var result = await _cartService.AddToCart(model);
+            var result = await _cartService.AddToCart(addItemDTO);
 
             if (result.Succeeded)
             {
                 return Ok(result);
             }
-
             return BadRequest(result.Errors);
         }
 
