@@ -29,8 +29,37 @@ namespace Unimarket.API.Controllers
             _itemCategoryService = itemCategoryService;
             _categoryService = categoryService;
         }
+		[HttpGet("get/{id}")]
+		public async Task<IActionResult> GetById(Guid id)
+		{
+			try
+			{
+				var resultItem = await _itemService.FindAsync(id);
+				var result = _mapper.Map<ItemDTO>(resultItem);
+				var item = new ItemVM
+				{
+					// chõ này chưa map
+					Id = result.Id,
+					Name = result.Name,
+					Description = result.Description,
+					ImageUrl = result.ImageUrl,
+					Price = result.Price,
+					Quantity = result.Quantity,
+					Status = result.Status,
+					CategoryName = _itemCategoryService.Get(cate => cate.ItemId.Equals(result.Id)).Include(cate => cate.Category)
+					.Select(_ => _.Category.Name).ToList(),
+					SubImageUrl = _itemImageService.Get(image => image.Item.Id.Equals(result.Id)).Select(item => item.ImageUrl).ToList(),
+				};
 
-        [HttpGet]
+				return Ok(item);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+			}
+		}
+
+		[HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
         {
             try

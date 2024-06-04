@@ -14,7 +14,7 @@ namespace Unimarket.API.Helper
             #endregion
 
             #region Item
-            CreateMap<Item, ItemDTO>().ReverseMap();
+            CreateMap<Item, ItemDTO>().ReverseMap();    
             #endregion
         }
     }
