@@ -20,7 +20,8 @@ namespace Unimarket.Infracstruture.Services
     public interface IOrderService
     {
         Task<string> CheckOut(string userId,CheckOutDTO AddItem);
-        IQueryable<List<OrderVM>> GetOrdersByUserId(string userId);
+		Task<IdentityResult> UpdateOrder(UpdateOrderUM upOrder);
+		IQueryable<List<OrderVM>> GetOrdersByUserId(string userId);
         Task<Order> FindAsync(Guid id);
         Task<string> CreateVnPayUrl(float amount, string orderDescription, string locale);
         Task<IdentityResult> ConfirmVnPayPayment(IQueryCollection vnPayResponse);
@@ -87,7 +88,7 @@ namespace Unimarket.Infracstruture.Services
                 PaymentType = checkOutDTO.PaymentType,
                 TotalPrice = totalPrice,
                 User = user,
-                Status = 1, 
+                Status = 0, 
                 CreateAt = DateTime.UtcNow,
                 OrderDetails = new List<OrderDetail>()
             };
@@ -216,9 +217,9 @@ namespace Unimarket.Infracstruture.Services
             throw new NotImplementedException();
         }
 
-        public Task<Order> FindAsync(Guid id)
+        public async Task<Order> FindAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _orderRepository.FindAsync(id);
         }
 
         public IQueryable<Order> Get(Expression<Func<Order, bool>> where)
@@ -253,7 +254,7 @@ namespace Unimarket.Infracstruture.Services
 
         public void Update(Order order)
         {
-            throw new NotImplementedException();
+            _orderRepository.Update(order);
         }
 
         public IQueryable<List<OrderVM>> GetOrdersByUserId(string userId)
@@ -288,5 +289,20 @@ namespace Unimarket.Infracstruture.Services
                                     });
         }
 
-    }
+        public async Task<IdentityResult> UpdateOrder(UpdateOrderUM upOrder)
+        {
+            var order = await _orderRepository.FindAsync(upOrder.OrderId);
+            if (order != null)
+            {
+                order.Status = upOrder.Status;
+                _orderRepository.Update(order);
+                await _unitOfWork.SaveChangeAsync();
+				return IdentityResult.Success;
+			}else
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Could not save changes to the database." });
+			}
+        }
+
+	}
 }

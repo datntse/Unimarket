@@ -42,6 +42,17 @@ namespace Unimarket.API.Controllers
 
             return Ok(orderVM);
         }
+
+        [HttpPost("update/order")]
+        public async Task<IActionResult> UpdateStatus(UpdateOrderUM upOrder)
+        {
+            var status = await _orderService.UpdateOrder(upOrder);
+			if (status.Succeeded)
+			{
+				return Ok(new { success = true, message = "Payment successful" });
+			}
+			return BadRequest(new { success = false, errors = status.Errors });
+		}
         [HttpPost("checkout")]
         public async Task<IActionResult> CheckOut([FromBody] CheckOutDTO checkOutDTO)
         {
