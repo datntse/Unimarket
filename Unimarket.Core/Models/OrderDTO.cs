@@ -27,6 +27,10 @@ namespace Unimarket.Core.Models
         public int Status { get; set; }
         public DateTime CreateAt { get; set; }
         public string Username { get; set; }
+        public string Address {  get; set; }
+        public string PhoneNumber {  get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
         public List<OrderdetailVM> OrderdetailVM { get; set; }
     }
 
@@ -47,6 +51,8 @@ namespace Unimarket.Core.Models
 
     public class CheckOutDTO
     {
+        public string UserId {  get; set; }
+        public string Address { get; set; }
         public string PaymentType { get; set; }
     }
 

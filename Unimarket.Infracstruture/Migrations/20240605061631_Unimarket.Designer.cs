@@ -12,7 +12,7 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240604134938_Unimarket")]
+    [Migration("20240605061631_Unimarket")]
     partial class Unimarket
     {
         /// <inheritdoc />
@@ -532,6 +532,10 @@ namespace Unimarket.Infracstruture.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
