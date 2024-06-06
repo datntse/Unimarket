@@ -39,10 +39,8 @@ namespace Unimarket.API.Controllers
 
 
         [HttpGet("user")]
-        [Authorize] // This attribute is optional, use it if you want to restrict access to authenticated users
-        public async Task<IActionResult> GetOrderByUserId([FromQuery] DefaultSearch defaultSearch)
+        public async Task<IActionResult> GetOrderByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery] string userId)
         {
-            var userId = _currentUserService.GetUserId().ToString();
             if (userId == null)
             {
                 NotFound("Need Login!!!!");
