@@ -18,6 +18,7 @@ namespace Unimarket.Infracstruture.Services
     public interface ICartService
     {
         Task<IdentityResult> AddToCart(AddItemDTO AddItem);
+        Task<IdentityResult> DecreaseQuantity(AddItemDTO AddItem);
         Task<IdentityResult> UpdateItemQuantity(UpdateItemQuantityDTO updateItem);
         Task<IdentityResult> AddQuantityToCart(UpdateItemQuantityDTO addItem);
         //Task<List<CartItem>> GetCartItemsByUserId(string userId);
@@ -97,7 +98,39 @@ namespace Unimarket.Infracstruture.Services
             }
 
             return IdentityResult.Failed(new IdentityError { Description = "Could not save changes to the database." });
+        }
 
+        public async Task<IdentityResult> DecreaseQuantity(AddItemDTO AddItem)
+        {
+            var user = await _userManager.FindByIdAsync(AddItem.UserId);
+
+            var items = await _itemRepository.FindAsync(Guid.Parse(AddItem.ItemId));
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "User does not exist." });
+            }
+            var existingCartItem = _cartRepository.Get(c => c.User.Id == AddItem.UserId && c.ItemId == Guid.Parse(AddItem.ItemId)).FirstOrDefault();
+            if (existingCartItem != null)
+            {
+                // Item exists, update the quantity
+                existingCartItem.Quantity -= 1;
+                existingCartItem.UpdateAt = DateTime.UtcNow;
+                _cartRepository.Update(existingCartItem);
+
+                if (existingCartItem.Quantity < 1)
+                {
+                    _cartRepository.Remove(existingCartItem);
+                     var result = await _unitOfWork.SaveChangeAsync();
+                    if(result) return IdentityResult.Success;
+                }
+            }
+            var saveResult = await _unitOfWork.SaveChangeAsync();
+            if (saveResult)
+            {
+                return IdentityResult.Success;
+            }
+
+            return IdentityResult.Failed(new IdentityError { Description = "Could not save changes to the database." });
         }
 
         public async Task<IdentityResult> UpdateItemQuantity(UpdateItemQuantityDTO updateItem)

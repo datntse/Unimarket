@@ -50,6 +50,18 @@ namespace Unimarket.API.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpPost("descrease")]
+        public async Task<IActionResult> RemoveQuantity([FromBody] AddItemDTO addItemDTO)
+        {
+            var result = await _cartService.DecreaseQuantity(addItemDTO);
+
+            if (result.Succeeded)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result.Errors);
+        }
+
         [HttpPost]
         [Route("update")]
         public async Task<IActionResult> UpdateItemQuantity([FromBody] UpdateItemQuantityDTO model)
