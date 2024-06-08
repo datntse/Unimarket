@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using Unimarket.Core.Entities;
 using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Services;
@@ -65,15 +66,33 @@ namespace Unimarket.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(CategoryUM categoryUM)
+        public async Task<IActionResult> Update([FromBody] CategoryUM categoryUM)
         {
             try
             {
+                if(categoryUM.Name.Equals(_categoryService.Get(c=>c.Name.Contains(categoryUM.Name)))) 
+                {
+                    return BadRequest(new { success = false, message = "Tên category đã tồn tại." });
+                }
                 var result = await _categoryService.FindAsync(categoryUM.Id);
                 result.Name = categoryUM.Name;
                  _categoryService.Update(result);
                 await _categoryService.SaveChangeAsync();
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        [HttpDelete("delete-category")]
+        public async Task<IActionResult> Update([FromQuery] string categoryId)
+        {
+            try
+            {
+                await _categoryService.Remove(Guid.Parse(categoryId));
+                await _categoryService.SaveChangeAsync();
+                return Ok();
             }
             catch (Exception ex)
             {

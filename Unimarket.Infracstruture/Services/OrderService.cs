@@ -19,13 +19,13 @@ namespace Unimarket.Infracstruture.Services
 {
     public interface IOrderService
     {
-        Task<string> CheckOut(string userId,CheckOutDTO AddItem);
+        Task<string> CheckOut(CheckOutDTO AddItem);
 		Task<IdentityResult> UpdateOrder(UpdateOrderUM upOrder);
-		IQueryable<List<OrderVM>> GetOrdersByUserId(string userId);
+		IQueryable<OrderVM> GetOrdersByUserId(string userId);
         Task<Order> FindAsync(Guid id);
         Task<string> CreateVnPayUrl(float amount, string orderDescription, string locale);
         Task<IdentityResult> ConfirmVnPayPayment(IQueryCollection vnPayResponse);
-        IQueryable<Order> GetAll();
+        IQueryable<OrderVM> GetAll();
         IQueryable<Order> Get(Expression<Func<Order, bool>> where);
         IQueryable<Order> Get(Expression<Func<Order, bool>> where, params Expression<Func<Order, object>>[] includes);
         IQueryable<Order> Get(Expression<Func<Order, bool>> where, Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = null);
@@ -70,10 +70,10 @@ namespace Unimarket.Infracstruture.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<string> CheckOut(string userId, CheckOutDTO checkOutDTO)
+        public async Task<string> CheckOut(CheckOutDTO checkOutDTO)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            var cartItems = await _cartRepository.Get(c => c.User.Id == userId).Include(c=>c.Items).ToListAsync();
+            var user = await _userManager.FindByIdAsync(checkOutDTO.UserId);
+            var cartItems = await _cartRepository.Get(c => c.User.Id == checkOutDTO.UserId).Include(c=>c.Items).ToListAsync();
 
             if (cartItems == null || !cartItems.Any())
             {
@@ -85,6 +85,7 @@ namespace Unimarket.Infracstruture.Services
             var order = new Order
             {
                 Id = Guid.NewGuid(),
+                Address = checkOutDTO.Address,
                 PaymentType = checkOutDTO.PaymentType,
                 TotalPrice = totalPrice,
                 User = user,
@@ -237,9 +238,40 @@ namespace Unimarket.Infracstruture.Services
             return _orderRepository.Get(where, include);
         }
 
-        public IQueryable<Order> GetAll()
+        public IQueryable<OrderVM> GetAll()
         {
-            throw new NotImplementedException();
+            return _orderRepository.Get(o => o.Id != null)
+                                    .Include(o => o.User)
+                                    .Include(o => o.OrderDetails)
+                                    .ThenInclude(od => od.Items)
+                                    .Select(order =>
+                                    
+                                        new OrderVM
+                                        {
+                                            Id = order.Id,
+                                            PaymentType = order.PaymentType,
+                                            TotalPrice = order.TotalPrice,
+                                            Status = order.Status,
+                                            CreateAt = order.CreateAt,
+                                            Username = order.User.UserName,
+                                            Address = order.Address,
+                                            FirstName = order.User.FirstName,
+                                            LastName = order.User.LastName,
+                                            PhoneNumber = order.User.PhoneNumber,
+                                            OrderdetailVM = order.OrderDetails.Select(od => new OrderdetailVM
+                                            {
+                                                Id = od.Id,
+                                                Quantity = od.Quantity,
+                                                TotalPrice = od.TotalPrice,
+                                                ItemsVMs = new ItemsVM
+                                                {
+                                                    Name = od.Items.Name,
+                                                    Price = od.Items.Price,
+                                                    ImageUrl = od.Items.ImageUrl
+                                                }
+                                            }).ToList()
+                                        }
+                                    );
         }
 
         public Task<bool> Remove(Guid id)
@@ -257,14 +289,14 @@ namespace Unimarket.Infracstruture.Services
             _orderRepository.Update(order);
         }
 
-        public IQueryable<List<OrderVM>> GetOrdersByUserId(string userId)
+        public IQueryable<OrderVM> GetOrdersByUserId(string userId)
 {
             return _orderRepository.Get(o => o.User.Id == userId)
                                     .Include(o => o.User)
                                     .Include(o => o.OrderDetails)
                                     .ThenInclude(od => od.Items)
-                                    .Select(order => new List<OrderVM>
-                                    {
+                                    .Select(order =>
+
                                         new OrderVM
                                         {
                                             Id = order.Id,
@@ -273,6 +305,10 @@ namespace Unimarket.Infracstruture.Services
                                             Status = order.Status,
                                             CreateAt = order.CreateAt,
                                             Username = order.User.UserName,
+                                            Address = order.Address,
+                                            FirstName = order.User.FirstName,
+                                            LastName = order.User.LastName,
+                                            PhoneNumber = order.User.PhoneNumber,
                                             OrderdetailVM = order.OrderDetails.Select(od => new OrderdetailVM
                                             {
                                                 Id = od.Id,
@@ -286,7 +322,7 @@ namespace Unimarket.Infracstruture.Services
                                                 }
                                             }).ToList()
                                         }
-                                    });
+                                    );
         }
 
         public async Task<IdentityResult> UpdateOrder(UpdateOrderUM upOrder)

@@ -23,16 +23,10 @@ namespace Unimarket.API.Controllers
             _orderService = orderService;
             _currentUserService = currentUserService;
         }
-        [HttpGet("user")]
-        [Authorize] // This attribute is optional, use it if you want to restrict access to authenticated users
-        public async Task<IActionResult> GetOrderByUserId([FromQuery] DefaultSearch defaultSearch)
+        [HttpGet("getall")]
+        public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
         {
-            var userId = _currentUserService.GetUserId().ToString();
-            if (userId == null)
-            {
-                NotFound("Need Login!!!!");
-            }
-            var orderVM = await _orderService.GetOrdersByUserId(userId).Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "" : defaultSearch.sortBy
+            var orderVM = await _orderService.GetAll().Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
                       , defaultSearch.isAscending)
                       .ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
             if (orderVM == null)
@@ -40,10 +34,30 @@ namespace Unimarket.API.Controllers
                 return NotFound();
             }
 
-            return Ok(orderVM);
+            return Ok(new { total = orderVM.Count(), data = orderVM, currenPage = defaultSearch.currentPage });
         }
 
-        [HttpPost("update/order")]
+
+        [HttpGet("user")]
+        public async Task<IActionResult> GetOrderByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery] string userId)
+        {
+            if (userId == null)
+            {
+                NotFound("Need Login!!!!");
+            }
+            var orderVM = await _orderService.GetOrdersByUserId(userId).Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
+                      , defaultSearch.isAscending)
+                      .ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
+            if (orderVM == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { total = orderVM.Count(), data = orderVM, currenPage = defaultSearch.currentPage });
+        }
+    
+
+        [HttpPut("update/order")]
         public async Task<IActionResult> UpdateStatus(UpdateOrderUM upOrder)
         {
             var status = await _orderService.UpdateOrder(upOrder);
@@ -56,12 +70,12 @@ namespace Unimarket.API.Controllers
         [HttpPost("checkout")]
         public async Task<IActionResult> CheckOut([FromBody] CheckOutDTO checkOutDTO)
         {
-            var userId = _currentUserService.GetUserId().ToString();
-            if (userId == null)
-            {
-                NotFound("Need Login!!!!");
-            }
-            var paymentUrl = await _orderService.CheckOut(userId, checkOutDTO);
+            //var userId = _currentUserService.GetUserId().ToString();
+            //if (userId == null)
+            //{
+            //    NotFound("Need Login!!!!");
+            //}
+            var paymentUrl = await _orderService.CheckOut(checkOutDTO);
 
             if (!string.IsNullOrEmpty(paymentUrl))
             {
