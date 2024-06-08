@@ -89,6 +89,7 @@ namespace Unimarket.Infracstruture.Services
                 PaymentType = checkOutDTO.PaymentType,
                 TotalPrice = totalPrice,
                 User = user,
+                Note= checkOutDTO.Note,
                 Status = 0, 
                 CreateAt = DateTime.UtcNow,
                 OrderDetails = new List<OrderDetail>()
@@ -258,6 +259,7 @@ namespace Unimarket.Infracstruture.Services
                                             FirstName = order.User.FirstName,
                                             LastName = order.User.LastName,
                                             PhoneNumber = order.User.PhoneNumber,
+                                            Note = order.Note,
                                             OrderdetailVM = order.OrderDetails.Select(od => new OrderdetailVM
                                             {
                                                 Id = od.Id,
@@ -308,6 +310,7 @@ namespace Unimarket.Infracstruture.Services
                                             Address = order.Address,
                                             FirstName = order.User.FirstName,
                                             LastName = order.User.LastName,
+                                            Note = order.Note,
                                             PhoneNumber = order.User.PhoneNumber,
                                             OrderdetailVM = order.OrderDetails.Select(od => new OrderdetailVM
                                             {

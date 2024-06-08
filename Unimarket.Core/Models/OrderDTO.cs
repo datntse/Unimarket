@@ -30,6 +30,7 @@ namespace Unimarket.Core.Models
         public string Address {  get; set; }
         public string PhoneNumber {  get; set; }
         public String FirstName { get; set; }
+        public string Note {  get; set; }
         public String LastName { get; set; }
         public List<OrderdetailVM> OrderdetailVM { get; set; }
     }
@@ -53,6 +54,7 @@ namespace Unimarket.Core.Models
     {
         public string UserId {  get; set; }
         public string Address { get; set; }
+        public string Note {  get; set; }
         public string PaymentType { get; set; }
     }
 
