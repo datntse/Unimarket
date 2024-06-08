@@ -25,11 +25,15 @@ namespace Unimarket.Core.Models
         public String? DOB { get; set; }
         public String? PhoneNumber { get; set; }
         public String? CCCDNumber { get; set; }
-        public bool Gender { get; set; }
+		public String StudentId { get; set; }
+
+		public String Avatar { get; set; }
+		public bool Gender { get; set; }
         // default Status = 1;
         public int Status { get; set; } = 1;
 
-    }
+
+	}
 
     public class UserRolesVM
     {
@@ -60,12 +64,15 @@ namespace Unimarket.Core.Models
 
     public class UserVM
     {
-        public String Id { get; set; }  
-		public DateTime? DOB { get; set; }
-		public String FirstName { get; set; }
-		public String LastName { get; set; }
-		public String PhoneNumber { get; set; }
-		public String CCCDNumber { get; set; }
+        public String Id { get; set; }
+        public DateTime? DOB { get; set; }
+        public String FirstName { get; set; }
+        public String LastName { get; set; }
+        public String PhoneNumber { get; set; }
+        public String CCCDNumber { get; set; }
+        public String StudentId { get; set; }
+
+		public String Avatar { get; set; }
 		public bool Gender { get; set; }
 		public int Status { get; set; }
 	}

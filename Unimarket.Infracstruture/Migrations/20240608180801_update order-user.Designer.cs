@@ -12,7 +12,7 @@ using Unimarket.Infracstruture.Data;
 namespace Unimarket.Infracstruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240608180255_update order-user")]
+    [Migration("20240608180801_update order-user")]
     partial class updateorderuser
     {
         /// <inheritdoc />
@@ -167,7 +167,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Avatar")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CCCDNumber")
@@ -236,7 +235,6 @@ namespace Unimarket.Infracstruture.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("StudentId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
