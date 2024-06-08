@@ -106,7 +106,7 @@ namespace Unimarket.API.Controllers
             return Ok(new { token = token, refreshToken = newRefreshToken });
         }
 
-        [HttpGet("profile/id")]
+        [HttpGet("profile/{id}")]
         public  IActionResult GetProfile(string id)
         {
             var user = _userService.Get(_ => _.Id.Equals(id)).FirstOrDefault();

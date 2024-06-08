@@ -71,7 +71,7 @@ namespace Unimarket.Core.Models
         public String PhoneNumber { get; set; }
         public String CCCDNumber { get; set; }
         public String StudentId { get; set; }
-
+        public String Email { get; set; }   
 		public String Avatar { get; set; }
 		public bool Gender { get; set; }
 		public int Status { get; set; }
