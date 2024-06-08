@@ -11,10 +11,11 @@ namespace Unimarket.API.Helper
             #region User
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
             CreateMap<ApplicationUser, UserRolesVM>().ReverseMap();
-            #endregion
+            CreateMap<ApplicationUser, UserVM>().ReverseMap();
+			#endregion
 
-            #region Item
-            CreateMap<Item, ItemDTO>().ReverseMap();    
+			#region Item
+			CreateMap<Item, ItemDTO>().ReverseMap();    
             #endregion
         }
     }

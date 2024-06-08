@@ -17,7 +17,9 @@ namespace Unimarket.Core.Entities
         public String CCCDNumber {  get; set; }
         public bool Gender{  get; set; }
         public int Status {  get; set; }
-        public String? RefreshToken { get; set; }
+        public string Avatar { get; set; }
+        public string StudentId { get; set; }
+		public String? RefreshToken { get; set; }
         public DateTime? DateExpireRefreshToken { get; set; }
         public virtual UserAddress? UserAddress { get; set; }
         public virtual List<CartItem>? CartItem { get; set; }

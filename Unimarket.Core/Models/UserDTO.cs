@@ -60,15 +60,15 @@ namespace Unimarket.Core.Models
 
     public class UserVM
     {
-        public String Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public String? DOB { get; set; }
-        public String? PhoneNumber { get; set; }
-        public String? CCCDNumber { get; set; }
-        public bool Gender { get; set; }
-    }
+        public String Id { get; set; }  
+		public DateTime? DOB { get; set; }
+		public String FirstName { get; set; }
+		public String LastName { get; set; }
+		public String PhoneNumber { get; set; }
+		public String CCCDNumber { get; set; }
+		public bool Gender { get; set; }
+		public int Status { get; set; }
+	}
 
 
 }

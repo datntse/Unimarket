@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,13 @@ namespace Unimarket.API.Controllers
     {
         private readonly IUserService _userService;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IJwtTokenService _jwtTokenService;
+		private readonly IMapper _mapper;
+		private readonly IJwtTokenService _jwtTokenService;
 
-        public AuthenticateController(IJwtTokenService jwtTokenService, IUserService userService, ICurrentUserService currentUserService)
+        public AuthenticateController(IJwtTokenService jwtTokenService, IUserService userService, ICurrentUserService currentUserService
+            ,IMapper mapper)
         {
+            _mapper = mapper;
             _jwtTokenService = jwtTokenService;
             _userService = userService;
             _currentUserService = currentUserService;
@@ -105,8 +109,9 @@ namespace Unimarket.API.Controllers
         [HttpGet("profile/id")]
         public  IActionResult GetProfile(string id)
         {
-            var result = _userService.Get(_ => _.Id.Equals(id));
-            return Ok(result);
+            var user = _userService.Get(_ => _.Id.Equals(id)).FirstOrDefault();
+            var result = _mapper.Map<UserVM>(user);
+			return Ok(result);
         }
 		[AllowAnonymous]
 		[HttpGet("getUserId")]
