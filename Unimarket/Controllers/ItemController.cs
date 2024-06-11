@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Unimarket.API.Helper;
 using Unimarket.API.Helpers;
 using Unimarket.API.Services;
+using Unimarket.Core.Constants;
 using Unimarket.Core.Entities;
 using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Services;
@@ -12,6 +14,7 @@ namespace Unimarket.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = AppRole.Admin)]
     public class ItemController : Controller
     {
         private readonly IItemService _itemService;
@@ -30,7 +33,8 @@ namespace Unimarket.API.Controllers
             _categoryService = categoryService;
         }
 		[HttpGet("get/{id}")]
-		public async Task<IActionResult> GetById(Guid id)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetById(Guid id)
 		{
 			try
 			{
@@ -61,7 +65,8 @@ namespace Unimarket.API.Controllers
 		}
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch, [FromQuery] List<string> categoryNames, [FromQuery] float? minPrice, [FromQuery] float? maxPrice)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAll([FromQuery] Helpers.DefaultSearch defaultSearch, [FromQuery] List<string> categoryNames, [FromQuery] float? minPrice, [FromQuery] float? maxPrice)
         {
             try
             {

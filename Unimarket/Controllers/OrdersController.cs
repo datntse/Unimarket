@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Unimarket.API.Helper;
 using Unimarket.API.Helpers;
 using Unimarket.API.Services;
+using Unimarket.Core.Constants;
 using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Services;
 
@@ -13,6 +14,7 @@ namespace Unimarket.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = AppRole.Customer)]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -24,7 +26,7 @@ namespace Unimarket.API.Controllers
             _currentUserService = currentUserService;
         }
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
+        public async Task<IActionResult> GetAll([FromQuery] Helpers.DefaultSearch defaultSearch)
         {
             var orderVM = await _orderService.GetAll().Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
                       , defaultSearch.isAscending)
@@ -39,7 +41,7 @@ namespace Unimarket.API.Controllers
 
 
         [HttpGet("user")]
-        public async Task<IActionResult> GetOrderByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery] string userId)
+        public async Task<IActionResult> GetOrderByUserId([FromQuery] Helpers.DefaultSearch defaultSearch, [FromQuery] string userId)
         {
             if (userId == null)
             {

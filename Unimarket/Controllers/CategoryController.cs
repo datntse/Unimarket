@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Unimarket.Core.Constants;
 using Unimarket.Core.Entities;
 using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Services;
@@ -8,6 +10,7 @@ namespace Unimarket.API.Controllers
 {
     [ApiController]
     [Route("api/category")]
+    [Authorize(Roles = AppRole.Admin)]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
@@ -17,6 +20,7 @@ namespace Unimarket.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult GetAll()
         {
             try

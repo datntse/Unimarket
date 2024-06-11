@@ -12,7 +12,6 @@ namespace Unimarket.API.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    [Authorize]
     public class AuthenticateController : Controller
     {
         private readonly IUserService _userService;

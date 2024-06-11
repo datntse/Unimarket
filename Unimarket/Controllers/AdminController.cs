@@ -14,7 +14,7 @@ namespace Unimarket.API.Controllers
 {
     [ApiController]
     [Route("api/admin")]
-    //[Authorize]
+    [Authorize(Roles = AppRole.Admin)]
     public class AdminController : Controller
     {
         private readonly IUserService _userService;

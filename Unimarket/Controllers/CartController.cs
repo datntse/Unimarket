@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Unimarket.API.Helper;
 using Unimarket.API.Helpers;
 using Unimarket.API.Services;
+using Unimarket.Core.Constants;
 using Unimarket.Core.Models;
 using Unimarket.Infracstruture.Services;
 
@@ -12,7 +13,7 @@ namespace Unimarket.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = AppRole.Customer)]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -23,7 +24,7 @@ namespace Unimarket.API.Controllers
             _currentUserService = currentUserService;
         }
         [HttpGet("get/usercart")]
-        public async Task<IActionResult> GetCartItemsByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery]string userId)
+        public async Task<IActionResult> GetCartItemsByUserId([FromQuery] Helpers.DefaultSearch defaultSearch, [FromQuery]string userId)
         {
             //var userId = _currentUserService.GetUserId().ToString();
             //if(userId == null)
