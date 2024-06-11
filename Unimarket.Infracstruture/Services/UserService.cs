@@ -24,6 +24,8 @@ namespace Unimarket.Infracstruture.Services
         Task<IList<String>> GetRolesAsync(ApplicationUser user);
 
         Task<ApplicationUser> FindAsync(Guid id);
+        Task<ApplicationUser> FindbyEmail(String email);
+        Task<ApplicationUser> FindByUserName(String userName);
         Task<IQueryable<UserRolesVM>> GetAll();
         IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where);
         IQueryable<ApplicationUser> Get(Expression<Func<ApplicationUser, bool>> where, params Expression<Func<ApplicationUser, object>>[] includes);
@@ -32,6 +34,7 @@ namespace Unimarket.Infracstruture.Services
         void Update(ApplicationUser user);
         Task<bool> CheckExist(Expression<Func<ApplicationUser, bool>> where);
         Task<bool> SaveChangeAsync();
+        Task<bool> ConfirmAccount(string email);
     }
     public class UserService : IUserService
     {
@@ -197,6 +200,25 @@ namespace Unimarket.Infracstruture.Services
                 }
             }
             return listUserRolesVM.AsQueryable();
+        }
+
+        public async Task<ApplicationUser> FindbyEmail(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<ApplicationUser> FindByUserName(string userName)
+        {
+            return await _userManager.FindByNameAsync(userName);    
+        }
+
+        public async Task<bool> ConfirmAccount(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return false;
+            user.EmailConfirmed = true;
+            _userRepository.Update(user);
+            return await _unitOfWork.SaveChangeAsync();
         }
     }
 }

@@ -38,7 +38,7 @@ namespace Unimarket.API.Services
             {
 				 new Claim("UserId", user.Id.ToString()),
 				new Claim(ClaimTypes.UserData, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };

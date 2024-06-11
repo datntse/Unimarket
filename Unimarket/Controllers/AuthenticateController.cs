@@ -33,10 +33,18 @@ namespace Unimarket.API.Controllers
         [HttpPost("signUp")]
         public async Task<IActionResult> SignUp(UserDTO signUpModel)
         {
+            var emailExist = await _userService.FindbyEmail(signUpModel.Email);
+            var userNameExist = await _userService.FindByUserName(signUpModel.UserName);
+            if(emailExist != null)
+            {
+                return BadRequest("Email đã tồn tại trên hệ thống!");
+            } else if (userNameExist != null) {
+                return BadRequest("Username này đã tồn tại trên hệ thống!");
+            }
             var result = await _userService.SignUpAsync(signUpModel);
             if (result == null)
             {
-                return BadRequest("Email is existed");
+                return BadRequest("Đăng kí thất bại");
             }
             if (result.Succeeded)
             {
@@ -51,10 +59,17 @@ namespace Unimarket.API.Controllers
         public async Task<IActionResult> SignIn(UserSignIn signIn)
         {
             var user = await _userService.SignInAsync(signIn);
-            if (user == null || !(user.Status != 0))
+            if (user == null)
             {
-                return Unauthorized();
+                return NotFound("Sai tên đăng nhập hoặc mật khẩu");
+            } else if(user.Status == 0)
+            {
+                return BadRequest("Tài khoản của bạn bị vô hiệu hóa");
+            }else if (user.EmailConfirmed == false)
+            {
+                return BadRequest("Tài khoản của bạn chưa được xác nhận vui lòng confirm qua email của bạn!");
             }
+           
             var userRoles = await _userService.GetRolesAsync(user);
             var accessToken = _jwtTokenService.CreateToken(user, userRoles);
             var refreshToken = _jwtTokenService.CreateRefeshToken();
@@ -119,6 +134,15 @@ namespace Unimarket.API.Controllers
         {
             var userId = _currentUserService.GetUserId();
             return Ok(userId);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("confirm")]
+        public async Task<IActionResult> ConfirmAccount(string email)
+        {
+            var result = await _userService.ConfirmAccount(email);
+            if(result) return Ok(result);
+            else return BadRequest("Cannot confirm your email");
         }
 
     }
