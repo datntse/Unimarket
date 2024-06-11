@@ -60,19 +60,46 @@ namespace Unimarket.API.Controllers
 			}
 		}
 
-		[HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch, [FromQuery] List<string> categoryNames, [FromQuery] float? minPrice, [FromQuery] float? maxPrice)
         {
             try
             {
                 var resultListItem = _itemService.GetAll();
+                if (categoryNames != null && categoryNames.Any())
+                {
+                    var itemIds = _itemCategoryService.Get(cate => categoryNames.Contains(cate.Category.Name))
+                                                       .Select(cate => cate.ItemId)
+                                                       .Distinct()
+                                                       .ToList();
 
-				var itemList = await resultListItem.Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
-                      , defaultSearch.isAscending).ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
+                    resultListItem = resultListItem.Where(item => itemIds.Contains(item.Id));
+                }
+
+                if(minPrice> maxPrice)
+                {
+                    return BadRequest();
+                }
+
+                if (minPrice.HasValue)
+                {
+                    resultListItem = resultListItem.Where(item => item.Price >= minPrice.Value);
+                }
+                if (maxPrice.HasValue)
+                {
+                    resultListItem = resultListItem.Where(item => item.Price <= maxPrice.Value);
+                }
+
+                var itemList = await resultListItem
+                    .Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy, defaultSearch.isAscending)
+                    .ToPageList(defaultSearch.currentPage, defaultSearch.perPage)
+                    .AsNoTracking()
+                    .ToListAsync();
+
                 var result = _mapper.Map<List<ItemDTO>>(itemList);
+
                 var result2 = result.Select(_ => new ItemVM
                 {
-                    // chõ này chưa map
                     Id = _.Id,
                     Name = _.Name,
                     ProductDetail = _.ProductDetail,
@@ -81,12 +108,16 @@ namespace Unimarket.API.Controllers
                     Price = _.Price,
                     Quantity = _.Quantity,
                     Status = _.Status,
-                    CategoryName = _itemCategoryService.Get(cate => cate.ItemId.Equals(_.Id)).Include(cate => cate.Category)
-                    .Select(_ => _.Category.Name).ToList(),
-                    SubImageUrl = _itemImageService.Get(image => image.Item.Id.Equals(_.Id)).Select(item => item.ImageUrl).ToList(),
+                    CategoryName = _itemCategoryService.Get(cate => cate.ItemId.Equals(_.Id))
+                                                        .Include(cate => cate.Category)
+                                                        .Select(cate => cate.Category.Name)
+                                                        .ToList(),
+                    SubImageUrl = _itemImageService.Get(image => image.Item.Id.Equals(_.Id))
+                                                    .Select(item => item.ImageUrl)
+                                                    .ToList(),
                 });
 
-                return Ok(new { total = resultListItem.Count(), data = result2, currenPage = defaultSearch.currentPage });
+                return Ok(new { total = resultListItem.Count(), data = result2, currentPage = defaultSearch.currentPage });
             }
             catch (Exception ex)
             {
@@ -94,39 +125,7 @@ namespace Unimarket.API.Controllers
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAll1([FromQuery] DefaultSearch defaultSearch)
-        //{
-        //    try
-        //    {
-        //        var resultListItem = _itemService.GetAll();
 
-        //        var itemList = await resultListItem.Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
-        //              , defaultSearch.isAscending).ToPageList(defaultSearch.currentPage, defaultSearch.perPage).AsNoTracking().ToListAsync();
-        //        var result = _mapper.Map<List<ItemDTO>>(itemList);
-        //        var result2 = result.Select(_ => new ItemVM
-        //        {
-        //            // chõ này chưa map
-        //            Id = _.Id,
-        //            Name = _.Name,
-        //            ProductDetail = _.ProductDetail,
-        //            Description = _.Description,
-        //            ImageUrl = _.ImageUrl,
-        //            Price = _.Price,
-        //            Quantity = _.Quantity,
-        //            Status = _.Status,
-        //            CategoryName = _itemCategoryService.Get(cate => cate.ItemId.Equals(_.Id)).Include(cate => cate.Category)
-        //            .Select(_ => _.Category.Name).ToList(),
-        //            SubImageUrl = _itemImageService.Get(image => image.Item.Id.Equals(_.Id)).Select(item => item.ImageUrl).ToList(),
-        //        });
-
-        //        return Ok(new { total = resultListItem.Count(), data = result2, currenPage = defaultSearch.currentPage });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-        //    }
-        //}
 
         [HttpPost]
         public async Task<IActionResult> Create(ItemDTO item)
