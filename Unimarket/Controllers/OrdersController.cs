@@ -26,7 +26,7 @@ namespace Unimarket.API.Controllers
             _currentUserService = currentUserService;
         }
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAll([FromQuery] Helpers.DefaultSearch defaultSearch)
+        public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
         {
             var orderVM = await _orderService.GetAll().Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
                       , defaultSearch.isAscending)
@@ -41,7 +41,7 @@ namespace Unimarket.API.Controllers
 
 
         [HttpGet("user")]
-        public async Task<IActionResult> GetOrderByUserId([FromQuery] Helpers.DefaultSearch defaultSearch, [FromQuery] string userId)
+        public async Task<IActionResult> GetOrderByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery] string userId)
         {
             if (userId == null)
             {
