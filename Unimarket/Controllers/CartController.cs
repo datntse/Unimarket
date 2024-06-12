@@ -69,11 +69,11 @@ namespace Unimarket.API.Controllers
         [Route("update")]
         public async Task<IActionResult> UpdateItemQuantity([FromBody] UpdateItemQuantityDTO model)
         {
-            var userId = _currentUserService.GetUserId().ToString();
-            if (userId == null)
-            {
-                NotFound("Need Login!!!!");
-            }
+            //var userId = _currentUserService.GetUserId().ToString();
+            //if (userId == null)
+            //{
+            //    NotFound("Need Login!!!!");
+            //}
             var result = await _cartService.UpdateItemQuantity(model);
 
             if (result.Succeeded)

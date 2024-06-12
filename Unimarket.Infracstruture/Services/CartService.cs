@@ -70,10 +70,15 @@ namespace Unimarket.Infracstruture.Services
                 return IdentityResult.Failed(new IdentityError { Description = "User does not exist." });
             }
             var existingCartItem = _cartRepository.Get(c => c.User.Id == AddItem.UserId && c.ItemId == Guid.Parse(AddItem.ItemId)).FirstOrDefault();
+            
             if (existingCartItem != null)
             {
-                // Item exists, update the quantity
-                existingCartItem.Quantity += 1;
+				if (items.Quantity == existingCartItem.Quantity)
+				{
+					return IdentityResult.Failed(new IdentityError { Description = "Quantity not enough!!!" });
+				}
+				// Item exists, update the quantity
+				existingCartItem.Quantity += 1;
                 existingCartItem.UpdateAt = DateTime.UtcNow;
                 _cartRepository.Update(existingCartItem);
             }
@@ -272,11 +277,13 @@ namespace Unimarket.Infracstruture.Services
                 {
                     _cartRepository.Update(existingCartItem);
                 }
-            } 
-
+            }
             else
             {
-                // Item does not exist, add a new CartItem if the quantity is positive
+                if(item.Quantity < addItem.Quantity)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Quantity not enough!!!" });
+                }
                 if (addItem.Quantity > 0)
                 {
                     var newCartItem = new CartItem
