@@ -24,7 +24,7 @@ namespace Unimarket.API.Controllers
             _currentUserService = currentUserService;
         }
         [HttpGet("get/usercart")]
-        public async Task<IActionResult> GetCartItemsByUserId([FromQuery] Helpers.DefaultSearch defaultSearch, [FromQuery]string userId)
+        public async Task<IActionResult> GetCartItemsByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery]string userId)
         {
             //var userId = _currentUserService.GetUserId().ToString();
             //if(userId == null)
