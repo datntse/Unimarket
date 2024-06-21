@@ -35,6 +35,7 @@ namespace Unimarket.Core.Models
 
 	}
 
+
     public class UserRolesVM
     {
         public string FirstName { get; set; }
@@ -76,6 +77,11 @@ namespace Unimarket.Core.Models
 		public bool Gender { get; set; }
 		public int Status { get; set; }
 	}
+
+    public class UserRoles : ApplicationUser
+    {
+        public List<string> RolesName { get; set; }
+    }
 
 
 }

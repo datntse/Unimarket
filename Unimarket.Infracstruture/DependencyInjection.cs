@@ -55,6 +55,9 @@ namespace Unimarket.Infracstruture
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
+
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IRoleService, RoleService>();
             #endregion
             return services;
         }

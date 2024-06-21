@@ -137,7 +137,7 @@ namespace Unimarket.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("confirm")]
-        public async Task<IActionResult> ConfirmAccount(string email)
+        public async Task<IActionResult> ConfirmAccount([FromQuery] string email)
         {
             var result = await _userService.ConfirmAccount(email);
             if(result) return Ok(result);
