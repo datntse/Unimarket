@@ -14,7 +14,7 @@ namespace Unimarket.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = AppRole.Customer)]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -25,6 +25,7 @@ namespace Unimarket.API.Controllers
             _orderService = orderService;
             _currentUserService = currentUserService;
         }
+        //[Authorize(Roles = AppRole.Staff)]
         [HttpGet("getall")]
         [Authorize(Roles = AppRole.Admin)]
         public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
@@ -40,7 +41,7 @@ namespace Unimarket.API.Controllers
             return Ok(new { total = orderVM.Count(), data = orderVM, currenPage = defaultSearch.currentPage });
         }
 
-
+        //[Authorize(Roles = AppRole.Customer)]
         [HttpGet("user")]
         public async Task<IActionResult> GetOrderByUserId([FromQuery] DefaultSearch defaultSearch, [FromQuery] string userId)
         {
@@ -58,8 +59,8 @@ namespace Unimarket.API.Controllers
 
             return Ok(new { total = orderVM.Count(), data = orderVM, currenPage = defaultSearch.currentPage });
         }
-    
 
+        //[Authorize(Roles = AppRole.Customer)]
         [HttpPut("update/order")]
         public async Task<IActionResult> UpdateStatus(UpdateOrderUM upOrder)
         {
@@ -70,6 +71,7 @@ namespace Unimarket.API.Controllers
 			}
 			return BadRequest(new { success = false, errors = status.Errors });
 		}
+        //[Authorize(Roles = AppRole.Customer)]
         [HttpPost("checkout")]
         public async Task<IActionResult> CheckOut([FromBody] CheckOutDTO checkOutDTO)
         {
@@ -87,7 +89,7 @@ namespace Unimarket.API.Controllers
 
             return Ok(new { success = true });
         }
-
+        [Authorize(Roles = AppRole.Customer)]
         [HttpGet("vnpay-return")]
         public async Task<IActionResult> ConfirmVnPayPayment()
         {
