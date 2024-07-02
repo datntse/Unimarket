@@ -66,11 +66,18 @@ namespace Unimarket.API.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAll([FromQuery] Helpers.DefaultSearch defaultSearch, [FromQuery] List<string> categoryNames, [FromQuery] float? minPrice, [FromQuery] float? maxPrice)
+        public async Task<IActionResult> GetAll(
+    [FromQuery] Helpers.DefaultSearch defaultSearch,
+    [FromQuery] List<string> categoryNames,
+    [FromQuery] float? minPrice,
+    [FromQuery] float? maxPrice,
+    [FromQuery] string? keyword) 
         {
             try
             {
                 var resultListItem = _itemService.GetAll();
+
+                // Filter by category names if provided
                 if (categoryNames != null && categoryNames.Any())
                 {
                     var itemIds = _itemCategoryService.Get(cate => categoryNames.Contains(cate.Category.Name))
@@ -81,20 +88,33 @@ namespace Unimarket.API.Controllers
                     resultListItem = resultListItem.Where(item => itemIds.Contains(item.Id));
                 }
 
-                if(minPrice> maxPrice)
+                // Filter by price range
+                if (minPrice.HasValue && maxPrice.HasValue && minPrice > maxPrice)
                 {
-                    return BadRequest();
+                    return BadRequest("Min price cannot be greater than max price.");
                 }
 
                 if (minPrice.HasValue)
                 {
                     resultListItem = resultListItem.Where(item => item.Price >= minPrice.Value);
                 }
+
                 if (maxPrice.HasValue)
                 {
                     resultListItem = resultListItem.Where(item => item.Price <= maxPrice.Value);
                 }
 
+                // Filter by keyword in Name or Description
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    string searchKeyword = keyword.ToLower(); // Convert keyword to lower case for case-insensitive search
+
+                    resultListItem = resultListItem.Where(item =>
+                        item.Name.ToLower().Contains(searchKeyword) ||
+                        item.Description.ToLower().Contains(searchKeyword));
+                }
+
+                // Sort, paginate, and project to DTO
                 var itemList = await resultListItem
                     .Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy, defaultSearch.isAscending)
                     .ToPageList(defaultSearch.currentPage, defaultSearch.perPage)
@@ -103,6 +123,7 @@ namespace Unimarket.API.Controllers
 
                 var result = _mapper.Map<List<ItemDTO>>(itemList);
 
+                // Map to ViewModel including additional details
                 var result2 = result.Select(_ => new ItemVM
                 {
                     Id = _.Id,
@@ -122,6 +143,7 @@ namespace Unimarket.API.Controllers
                                                     .ToList(),
                 });
 
+                // Return result with pagination details
                 return Ok(new { total = resultListItem.Count(), data = result2, currentPage = defaultSearch.currentPage });
             }
             catch (Exception ex)
@@ -129,6 +151,7 @@ namespace Unimarket.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
 
 
 
