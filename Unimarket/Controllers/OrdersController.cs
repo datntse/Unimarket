@@ -14,7 +14,7 @@ namespace Unimarket.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = AppRole.Customer)]
+    //[Authorize(Roles = AppRole.Customer)]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -26,6 +26,7 @@ namespace Unimarket.API.Controllers
             _currentUserService = currentUserService;
         }
         [HttpGet("getall")]
+        [Authorize(Roles = AppRole.Admin)]
         public async Task<IActionResult> GetAll([FromQuery] DefaultSearch defaultSearch)
         {
             var orderVM = await _orderService.GetAll().Sort(string.IsNullOrEmpty(defaultSearch.sortBy) ? "Id" : defaultSearch.sortBy
