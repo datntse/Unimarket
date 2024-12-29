@@ -4,7 +4,7 @@ name: Deploy on self-host runner
 on:
   push:
     branches:
-      - main
+      - master
       
 #những công việc mà no sẽ khi push code
 jobs:
